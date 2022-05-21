@@ -1,37 +1,25 @@
 import http
-import os
-import redis
-
+from db import db, init_db
 from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
-from dotenv import load_dotenv
-
-from models.user import UserModel
 from src.services.v1.user import UserRegister, User, UserLogin, UserLogout, TokenRefresh
+from db import jwt_redis_blocklist
+from core.config import settings
+
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['PROPAGATE_EXCEPTIONS'] = True
-app.secret_key = 'team4'
-api = Api(app)
 
-load_dotenv()
+api = Api(app)
+jwt = JWTManager(app)
+
+app.config["JWT_SECRET_KEY"] = settings.JWT_SECRET_KEY
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = settings.JWT_ACCESS_TOKEN_EXPIRES
 
 
 @app.before_first_request
 def create_tables():
     db.create_all()
-
-
-app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
-app.config["JWT_ACCESS_TOKEN_EXPIRES"] = os.getenv("JWT_ACCESS_TOKEN_EXPIRES")
-
-jwt = JWTManager(app)
-jwt_redis_blocklist = redis.StrictRedis(
-    host="localhost", port=6379, db=0, decode_responses=True
-)
 
 
 @jwt.expired_token_loader
@@ -88,19 +76,5 @@ api.add_resource(UserLogout, '/logout')
 api.add_resource(TokenRefresh, '/refresh')
 
 if __name__ == '__main__':
-    from db import db, init_db
-
     init_db(app)
-    app.app_context().push()
-    db.create_all()
-
-    # user creation example
-    admin = UserModel(username='admin', password='password')
-    db.session.add(admin)
-    db.session.commit()
-
-    # query example
-    UserModel.query.all()
-    fetched_admin = UserModel.query.filter_by(username='admin').first()
-
     app.run(port=5000, debug=True)

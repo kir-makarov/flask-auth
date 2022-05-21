@@ -12,7 +12,7 @@ from flask import jsonify
 from models.user import UserModel
 from werkzeug.security import safe_join
 from datetime import timedelta
-from database.redis_db import jwt_redis_blocklist
+from db import jwt_redis_blocklist
 
 
 user_parser = reqparse.RequestParser()
