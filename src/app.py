@@ -3,18 +3,17 @@ from db import db, init_db
 from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
-from services.v1.user import UserRegister, User, UserLogin, UserLogout, TokenRefresh
-from db import jwt_redis_blocklist
+from src.services.v1.user import UserRegister, User, UserLogin, UserLogout, TokenRefresh
+from db import jwt_redis
 from core.config import settings
-
 
 app = Flask(__name__)
 
-api = Api(app)
-
-jwt = JWTManager(app)
 app.config["JWT_SECRET_KEY"] = settings.JWT_SECRET_KEY
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = settings.JWT_ACCESS_TOKEN_EXPIRES
+
+api = Api(app)
+jwt = JWTManager(app)
 
 
 @app.before_first_request
@@ -33,7 +32,7 @@ def expired_token_callback():
 @jwt.token_in_blocklist_loader
 def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     jti = jwt_payload["jti"]
-    token_in_redis = jwt_redis_blocklist.get(jti)
+    token_in_redis = jwt_redis.get(jti)
     return token_in_redis is not None
 
 
@@ -69,11 +68,11 @@ def revoked_token_callback():
     }), http.HTTPStatus.UNAUTHORIZED
 
 
-api.add_resource(UserRegister, '/register')
-api.add_resource(User, '/user/<uuid:user_id>')
-api.add_resource(UserLogin, '/login')
-api.add_resource(UserLogout, '/logout')
-api.add_resource(TokenRefresh, '/refresh')
+api.add_resource(UserRegister, '/v1/register')
+api.add_resource(User, '/v1/user/<int:user_id>')
+api.add_resource(UserLogin, '/v1/login')
+api.add_resource(UserLogout, '/v1/logout')
+api.add_resource(TokenRefresh, '/v1/refresh')
 
 if __name__ == '__main__':
     init_db(app)
