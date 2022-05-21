@@ -8,6 +8,7 @@ from flask_jwt_extended import (
     get_jwt_identity,
     get_jwt,
 )
+
 from flask import jsonify
 from models.user import UserModel
 from werkzeug.security import safe_join
@@ -33,7 +34,6 @@ user_parser.add_argument(
 ACCESS_EXPIRES = timedelta(hours=1)
 
 class UserRegister(Resource):
-
     def post(self):
         data = user_parser.parse_args()
 
@@ -88,6 +88,7 @@ class UserLogout(Resource):
         ttype = token["type"]
         jwt_redis_blocklist.set(jti, "", ex=ACCESS_EXPIRES)
         return jsonify(msg=f"{ttype.capitalize()} token successfully revoked")
+
 
 class TokenRefresh(Resource):
     @jwt_required(refresh=True)
