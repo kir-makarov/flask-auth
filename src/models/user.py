@@ -1,16 +1,21 @@
+import uuid
+from sqlalchemy.dialects.postgresql import UUID
 from db import db
 
 
 class UserModel(db.Model):
     __tablename__ = 'users'
 
-    id = db.Column(db.String(36), primary_key=True)
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     username = db.Column(db.String(80))
     password = db.Column(db.String(80))
 
     def __init__(self, username, password):
         self.username = username
         self.password = password
+
+    def __repr__(self):
+        return f'<User {self.username}>'
 
     def json(self):
         return {

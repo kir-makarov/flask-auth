@@ -1,3 +1,4 @@
+import http
 import os
 import redis
 
@@ -6,13 +7,14 @@ from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from dotenv import load_dotenv
 
+from models.user import UserModel
 from src.services.v1.user import UserRegister, User, UserLogin, UserLogout, TokenRefresh
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['PROPAGATE_EXCEPTIONS'] = True
-# app.secret_key = 'jose'  - ???
+app.secret_key = 'team4'
 api = Api(app)
 
 load_dotenv()
@@ -37,7 +39,7 @@ def expired_token_callback():
     return jsonify({
         'description': 'The token has expired.',
         'error': 'token_expired'
-    }), 401
+    }), http.HTTPStatus.UNAUTHORIZED
 
 
 @jwt.token_in_blocklist_loader
@@ -52,7 +54,7 @@ def invalid_token_callback(error):
     return jsonify({
         'description': 'Signature verification failed.',
         'error': 'invalid_token'
-    }), 401
+    }), http.HTTPStatus.UNAUTHORIZED
 
 
 @jwt.unauthorized_loader
@@ -60,7 +62,7 @@ def missing_token_callback(error):
     return jsonify({
         'description': 'Request does not contain an access token.',
         'error': 'authorization_required'
-    }), 401
+    }), http.HTTPStatus.UNAUTHORIZED
 
 
 @jwt.needs_fresh_token_loader
@@ -68,7 +70,7 @@ def token_not_fresh_callback():
     return jsonify({
         'description': 'The token is not fresh.',
         'error': 'fresh_token_required'
-    }), 401
+    }), http.HTTPStatus.UNAUTHORIZED
 
 
 @jwt.revoked_token_loader
@@ -76,7 +78,7 @@ def revoked_token_callback():
     return jsonify({
         'description': 'The token has been revoked.',
         'error': 'token_revoked'
-    }), 401
+    }), http.HTTPStatus.UNAUTHORIZED
 
 
 api.add_resource(UserRegister, '/register')
@@ -86,7 +88,19 @@ api.add_resource(UserLogout, '/logout')
 api.add_resource(TokenRefresh, '/refresh')
 
 if __name__ == '__main__':
-    from db import db
+    from db import db, init_db
 
-    db.init_app(app)
+    init_db(app)
+    app.app_context().push()
+    db.create_all()
+
+    # user creation example
+    admin = UserModel(username='admin', password='password')
+    db.session.add(admin)
+    db.session.commit()
+
+    # query example
+    UserModel.query.all()
+    fetched_admin = UserModel.query.filter_by(username='admin').first()
+
     app.run(port=5000, debug=True)
