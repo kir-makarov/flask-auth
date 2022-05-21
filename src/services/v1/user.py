@@ -14,7 +14,6 @@ from werkzeug.security import safe_join
 from datetime import timedelta
 from db import jwt_redis_blocklist
 
-
 user_parser = reqparse.RequestParser()
 user_parser.add_argument(
     'username',
@@ -29,8 +28,8 @@ user_parser.add_argument(
     help="This field cannot be blank."
 )
 
-
 ACCESS_EXPIRES = timedelta(hours=1)
+
 
 class UserRegister(Resource):
 
@@ -40,7 +39,7 @@ class UserRegister(Resource):
         if UserModel.find_by_username(data['username']):
             return {"message": "A user with that username already exists"}, http.HTTPStatus.BAD_REQUEST
 
-        user = UserModel(data['username'], data['password'])
+        user = UserModel(data['username'], UserModel.generate_hash(data['password']))
         user.save_to_db()
 
         return {"message": "User created successfully."}, http.HTTPStatus.CREATED
@@ -70,13 +69,13 @@ class UserLogin(Resource):
     def post(cls):
         data = user_parser.parse_args()
         user = UserModel.find_by_username(data['username'])
-        if user and safe_join(user.password, data['password']):
+        if user and UserModel.verify_hash(data['password'], user.password):
             access_token = create_access_token(identity=user.id, fresh=True)
             refresh_token = create_refresh_token(user.id)
             return {
-                'access_token': access_token,
-                'refresh_token': refresh_token
-            }, http.HTTPStatus.OK
+                       'access_token': access_token,
+                       'refresh_token': refresh_token
+                   }, http.HTTPStatus.OK
         return {'message': 'Invalid credentials'}, http.HTTPStatus.UNAUTHORIZED
 
 
@@ -89,8 +88,9 @@ class UserLogout(Resource):
         jwt_redis_blocklist.set(jti, "", ex=ACCESS_EXPIRES)
         return jsonify(msg=f"{ttype.capitalize()} token successfully revoked")
 
+
 class TokenRefresh(Resource):
-    @jwt_required(refresh=True)
+    @jwt_required()
     def post(self):
         current_user = get_jwt_identity()
         new_token = create_access_token(identity=current_user, fresh=False)

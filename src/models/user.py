@@ -1,5 +1,7 @@
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
+from passlib.hash import pbkdf2_sha256 as sha256
+
 from db import db
 
 
@@ -7,8 +9,8 @@ class UserModel(db.Model):
     __tablename__ = 'users'
 
     id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    username = db.Column(db.String(80))
-    password = db.Column(db.String(80))
+    username = db.Column(db.String())
+    password = db.Column(db.String())
 
     def __init__(self, username, password):
         self.username = username
@@ -38,3 +40,11 @@ class UserModel(db.Model):
     @classmethod
     def find_by_id(cls, _id):
         return cls.query.filter_by(id=_id).first()
+
+    @staticmethod
+    def generate_hash(password):
+        return sha256.hash(password)
+
+    @staticmethod
+    def verify_hash(password, hash):
+        return sha256.verify(password, hash)

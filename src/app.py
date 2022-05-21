@@ -68,11 +68,11 @@ def revoked_token_callback():
     }), http.HTTPStatus.UNAUTHORIZED
 
 
-api.add_resource(UserRegister, '/register')
-api.add_resource(User, '/user/<int:user_id>')
-api.add_resource(UserLogin, '/login')
-api.add_resource(UserLogout, '/logout')
-api.add_resource(TokenRefresh, '/refresh')
+api.add_resource(UserRegister, '/v1/register')
+api.add_resource(User, '/v1/user/<int:user_id>')
+api.add_resource(UserLogin, '/v1/login')
+api.add_resource(UserLogout, '/v1/logout')
+api.add_resource(TokenRefresh, '/v1/refresh')
 
 if __name__ == '__main__':
     init_db(app)
