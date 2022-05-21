@@ -1,4 +1,6 @@
 import os
+from datetime import timedelta
+
 from pydantic import BaseSettings
 
 
@@ -30,6 +32,9 @@ class PostgresSettings(Base):
 
 
 class Settings(Base):
+
+    ACCESS_EXPIRES = timedelta(hours=1)
+    REFRESH_EXPIRES = timedelta(days=10)
 
     BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 

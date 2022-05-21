@@ -4,7 +4,7 @@ from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 from src.services.v1.user import UserRegister, User, UserLogin, UserLogout, TokenRefresh
-from db import jwt_redis_blocklist
+from db import jwt_redis
 from core.config import settings
 
 app = Flask(__name__)
@@ -32,7 +32,7 @@ def expired_token_callback():
 @jwt.token_in_blocklist_loader
 def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
     jti = jwt_payload["jti"]
-    token_in_redis = jwt_redis_blocklist.get(jti)
+    token_in_redis = jwt_redis.get(jti)
     return token_in_redis is not None
 
 
