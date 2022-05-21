@@ -1,16 +1,21 @@
-from flask import Flask, jsonify
+import os
 import redis
+
+from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
-from services.user import UserRegister, User, UserLogin, UserLogout, TokenRefresh
+from dotenv import load_dotenv
 
+from src.services.v1.user import UserRegister, User, UserLogin, UserLogout, TokenRefresh
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['PROPAGATE_EXCEPTIONS'] = True
-app.secret_key = 'jose'
+# app.secret_key = 'jose'  - ???
 api = Api(app)
+
+load_dotenv()
 
 
 @app.before_first_request
@@ -18,10 +23,14 @@ def create_tables():
     db.create_all()
 
 
+app.config["JWT_SECRET_KEY"] = os.getenv("JWT_SECRET_KEY")
+app.config["JWT_ACCESS_TOKEN_EXPIRES"] = os.getenv("JWT_ACCESS_TOKEN_EXPIRES")
+
 jwt = JWTManager(app)
 jwt_redis_blocklist = redis.StrictRedis(
     host="localhost", port=6379, db=0, decode_responses=True
 )
+
 
 @jwt.expired_token_loader
 def expired_token_callback():
@@ -69,14 +78,15 @@ def revoked_token_callback():
         'error': 'token_revoked'
     }), 401
 
+
 api.add_resource(UserRegister, '/register')
 api.add_resource(User, '/user/<int:user_id>')
 api.add_resource(UserLogin, '/login')
 api.add_resource(UserLogout, '/logout')
 api.add_resource(TokenRefresh, '/refresh')
 
-
 if __name__ == '__main__':
     from db import db
+
     db.init_app(app)
     app.run(port=5000, debug=True)
