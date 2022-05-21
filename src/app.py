@@ -7,14 +7,13 @@ from src.services.v1.user import UserRegister, User, UserLogin, UserLogout, Toke
 from db import jwt_redis_blocklist
 from core.config import settings
 
-
 app = Flask(__name__)
-
-api = Api(app)
-jwt = JWTManager(app)
 
 app.config["JWT_SECRET_KEY"] = settings.JWT_SECRET_KEY
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = settings.JWT_ACCESS_TOKEN_EXPIRES
+
+api = Api(app)
+jwt = JWTManager(app)
 
 
 @app.before_first_request
