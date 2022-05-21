@@ -10,7 +10,6 @@ from flask_jwt_extended import (
 )
 from flask import jsonify
 from models.user import UserModel
-from werkzeug.security import safe_join
 from datetime import timedelta
 from db import jwt_redis_blocklist
 
@@ -27,6 +26,7 @@ user_parser.add_argument(
     required=True,
     help="This field cannot be blank."
 )
+user_parser.add_argument("User-Agent", location="headers")
 
 ACCESS_EXPIRES = timedelta(hours=1)
 
@@ -92,6 +92,6 @@ class UserLogout(Resource):
 class TokenRefresh(Resource):
     @jwt_required()
     def post(self):
-        current_user = get_jwt_identity()
-        new_token = create_access_token(identity=current_user, fresh=False)
+        current_user_id = get_jwt_identity()
+        new_token = create_access_token(identity=current_user_id, fresh=False)
         return {"access_token": new_token}, http.HTTPStatus.OK
