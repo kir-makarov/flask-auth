@@ -61,7 +61,7 @@ def token_not_fresh_callback():
 
 
 @jwt.revoked_token_loader
-def revoked_token_callback():
+def revoked_token_callback(jwt_header, jwt_payload: dict):
     return jsonify({
         'description': 'The token has been revoked.',
         'error': 'token_revoked'
@@ -69,7 +69,7 @@ def revoked_token_callback():
 
 
 api.add_resource(UserRegister, '/v1/register')
-api.add_resource(User, '/v1/user/<int:user_id>')
+api.add_resource(User, '/v1/user/<uuid:user_id>')
 api.add_resource(UserLogin, '/v1/login')
 api.add_resource(UserLogout, '/v1/logout')
 api.add_resource(TokenRefresh, '/v1/refresh')
