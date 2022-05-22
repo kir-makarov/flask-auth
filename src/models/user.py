@@ -1,8 +1,15 @@
+import enum
 import uuid
+from db import db
+from sqlalchemy import Enum
 from sqlalchemy.dialects.postgresql import UUID
 from passlib.hash import pbkdf2_sha256 as sha256
 
-from db import db
+
+class Access(enum.Enum):
+    guest = 0
+    user = 1
+    admin = 2
 
 
 class UserModel(db.Model):
@@ -12,6 +19,8 @@ class UserModel(db.Model):
     username = db.Column(db.String())
     password = db.Column(db.String())
 
+    access = db.Column('value', Enum(Access), default=Access.user)
+
     def __init__(self, username, password):
         self.username = username
         self.password = password
@@ -19,10 +28,16 @@ class UserModel(db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
+    def is_admin(self):
+        return self.access == Access.admin
+
+    def allowed(self, access_level):
+        return self.access.value >= access_level
+
     def json(self):
         return {
             'id': str(self.id),
-            'username': self.username
+            'username': self.username,
         }
 
     def save_to_db(self):

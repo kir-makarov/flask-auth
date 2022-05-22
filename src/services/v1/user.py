@@ -14,6 +14,9 @@ from core.config import settings
 from models.user import UserModel
 from db import jwt_redis
 from services.auth import auth_service
+from access_level import requires_access_level
+
+
 
 user_parser = reqparse.RequestParser()
 user_parser.add_argument(
@@ -55,6 +58,7 @@ class User(Resource):
         return user.json()
 
     @classmethod
+    @requires_access_level(0)
     def delete(cls, user_id):
         user = UserModel.find_by_id(user_id)
         if not user:
@@ -96,6 +100,7 @@ class UserLogout(Resource):
 
 refresh_post_parser = reqparse.RequestParser()
 refresh_post_parser.add_argument("User-Agent", location="headers")
+
 
 class TokenRefresh(Resource):
     @jwt_required(refresh=True)
