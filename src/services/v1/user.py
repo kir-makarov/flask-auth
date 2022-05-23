@@ -1,5 +1,5 @@
 import http
-
+from flask import jsonify
 from flask_restful import Resource, reqparse
 from flask_jwt_extended import (
     create_access_token,
@@ -8,15 +8,12 @@ from flask_jwt_extended import (
     get_jwt_identity,
     get_jwt,
 )
-from flask import jsonify
 
 from core.config import settings
 from models.user import UserModel
 from db import jwt_redis
 from services.auth import auth_service
-from access_level import requires_access_level
-
-
+from services.permissions import user_must_match
 
 user_parser = reqparse.RequestParser()
 user_parser.add_argument(
@@ -51,6 +48,7 @@ class UserRegister(Resource):
 class User(Resource):
 
     @classmethod
+    @user_must_match
     def get(cls, user_id):
         user = UserModel.find_by_id(user_id)
         if not user:
@@ -58,13 +56,23 @@ class User(Resource):
         return user.json()
 
     @classmethod
-    @requires_access_level(0)
+    @jwt_required(optional=True)
     def delete(cls, user_id):
+        current_user_id = get_jwt_identity()
         user = UserModel.find_by_id(user_id)
         if not user:
             return {'message': 'user not found'}, http.HTTPStatus.NOT_FOUND
-        user.delete_from_db()
-        return {'message': 'user deleted'}, http.HTTPStatus.OK
+
+        if user.current_user(current_user_id) or user.is_admin():
+            user.delete_from_db()
+            return {'message': 'user deleted'}, http.HTTPStatus.OK
+
+        return {'message': 'insufficient credentials'}, http.HTTPStatus.NOT_FOUND
+
+
+class ChangePassword(Resource):
+    pass
+
 
 
 class UserLogin(Resource):
@@ -75,16 +83,18 @@ class UserLogin(Resource):
         user = UserModel.find_by_username(data['username'])
         user_agent = data["User-Agent"]
         if user and UserModel.verify_hash(data['password'], user.password):
-            access_token = create_access_token(identity=user.id, fresh=True)
+            access_token = create_access_token(
+                identity=user.id,
+                fresh=True,
+                additional_claims={"access_level": user.access.value}
+            )
             refresh_token = create_refresh_token(user.id)
 
             auth_service.delete_user_refresh_token(user.id, user_agent)
             auth_service.save_refresh_token_in_redis(user.id, user_agent, refresh_token)
 
-            return {
-                       'access_token': access_token,
-                       'refresh_token': refresh_token
-                   }, http.HTTPStatus.OK
+            return {'access_token': access_token,
+                    'refresh_token': refresh_token}, http.HTTPStatus.OK
         return {'message': 'Invalid credentials'}, http.HTTPStatus.UNAUTHORIZED
 
 

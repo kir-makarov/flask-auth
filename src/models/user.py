@@ -28,6 +28,9 @@ class UserModel(db.Model):
     def __repr__(self):
         return f'<User {self.username}>'
 
+    def current_user(self, current_user_id):
+        return current_user_id == self.id
+
     def is_admin(self):
         return self.access == Access.admin
 
