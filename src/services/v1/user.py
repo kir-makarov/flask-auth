@@ -91,10 +91,9 @@ class ChangePassword(Resource):
         data = password_parser.parse_args()
         user = UserModel.find_by_id(user_id)
         if user and UserModel.verify_hash(data['old_password'], user.password):
-            user.update_password(user_id, data['new_password'])
+            user.update_password(user_id, UserModel.generate_hash(data['password']))
             return {'message': 'password changed successfully'}, http.HTTPStatus.OK
         return {'message': 'user not found or incorrect password'}, http.HTTPStatus.NOT_FOUND
-
 
 
 class UserLogin(Resource):
