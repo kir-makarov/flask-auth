@@ -3,7 +3,7 @@ from db import db, init_db
 from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
-from src.services.v1.user import UserRegister, User, UserLogin, UserLogout, TokenRefresh
+from services.v1.user import UserRegister, User, UserLogin, UserLogout, TokenRefresh, ChangePassword
 from db import jwt_redis
 from core.config import settings
 
@@ -68,11 +68,21 @@ def revoked_token_callback(jwt_header, jwt_payload: dict):
     }), http.HTTPStatus.UNAUTHORIZED
 
 
+@jwt.additional_claims_loader
+def add_claims_to_jwt(identity):  # Remember identity is what we define when creating the access token
+    print('####', identity)
+    if identity == 1:   # instead of hard-coding, we should read from a config file or database to get a list of admins instead
+        return {'is_admin': True}
+    return {'is_admin': False}
+
+
+api.add_resource(User, '/v1/user/<user_id>')
 api.add_resource(UserRegister, '/v1/register')
-api.add_resource(User, '/v1/user/<uuid:user_id>')
 api.add_resource(UserLogin, '/v1/login')
 api.add_resource(UserLogout, '/v1/logout')
 api.add_resource(TokenRefresh, '/v1/refresh')
+api.add_resource(ChangePassword, '/v1/change-password')
+
 
 if __name__ == '__main__':
     init_db(app)
