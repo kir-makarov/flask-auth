@@ -13,7 +13,7 @@ from core.config import settings
 from models.user import UserModel
 from db import jwt_redis
 from services.auth import auth_service
-
+from services.permissions import user_must_match
 
 user_parser = reqparse.RequestParser()
 user_parser.add_argument(
@@ -48,10 +48,8 @@ class UserRegister(Resource):
 class User(Resource):
 
     @classmethod
-    @jwt_required(optional=True)
+    @user_must_match
     def get(cls, user_id):
-        token = get_jwt()
-        print(token)
         user = UserModel.find_by_id(user_id)
         if not user:
             return {'message': 'user not found'}, http.HTTPStatus.NOT_FOUND
@@ -60,7 +58,6 @@ class User(Resource):
     @classmethod
     @jwt_required(optional=True)
     def delete(cls, user_id):
-
         current_user_id = get_jwt_identity()
         user = UserModel.find_by_id(user_id)
         if not user:
@@ -89,17 +86,15 @@ class UserLogin(Resource):
             access_token = create_access_token(
                 identity=user.id,
                 fresh=True,
-                additional_claims={"access": user.access.value}
+                additional_claims={"access_level": user.access.value}
             )
             refresh_token = create_refresh_token(user.id)
 
             auth_service.delete_user_refresh_token(user.id, user_agent)
             auth_service.save_refresh_token_in_redis(user.id, user_agent, refresh_token)
 
-            return {
-                       'access_token': access_token,
-                       'refresh_token': refresh_token
-                   }, http.HTTPStatus.OK
+            return {'access_token': access_token,
+                    'refresh_token': refresh_token}, http.HTTPStatus.OK
         return {'message': 'Invalid credentials'}, http.HTTPStatus.UNAUTHORIZED
 
 

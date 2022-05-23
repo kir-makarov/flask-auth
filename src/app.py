@@ -3,7 +3,10 @@ from db import db, init_db
 from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
+
 from services.v1.user import UserRegister, User, UserLogin, UserLogout, TokenRefresh, ChangePassword
+from services.v1.film import Film
+
 from db import jwt_redis
 from core.config import settings
 
@@ -22,7 +25,7 @@ def create_tables():
 
 
 @jwt.expired_token_loader
-def expired_token_callback():
+def expired_token_callback(jwt_header, jwt_payload: dict):
     return jsonify({
         'description': 'The token has expired.',
         'error': 'token_expired'
@@ -38,6 +41,14 @@ def check_if_token_is_revoked(jwt_header, jwt_payload: dict):
 
 @jwt.invalid_token_loader
 def invalid_token_callback(error):
+    return jsonify({
+        'description': 'Signature verification failed.',
+        'error': 'invalid_token'
+    }), http.HTTPStatus.UNAUTHORIZED
+
+
+@jwt.user_lookup_loader
+def invalid_user_lookup_loader(jwt_header, jwt_payload: dict):
     return jsonify({
         'description': 'Signature verification failed.',
         'error': 'invalid_token'
@@ -68,12 +79,12 @@ def revoked_token_callback(jwt_header, jwt_payload: dict):
     }), http.HTTPStatus.UNAUTHORIZED
 
 
-@jwt.additional_claims_loader
-def add_claims_to_jwt(identity):  # Remember identity is what we define when creating the access token
-    print('####', identity)
-    if identity == 1:   # instead of hard-coding, we should read from a config file or database to get a list of admins instead
-        return {'is_admin': True}
-    return {'is_admin': False}
+# @jwt.additional_claims_loader
+# def add_claims_to_jwt(identity):  # Remember identity is what we define when creating the access token
+#     print('####', identity)
+#     if identity == 1:   # instead of hard-coding, we should read from a config file or database to get a list of admins instead
+#         return {'is_admin': True}
+#     return {'is_admin': False}
 
 
 api.add_resource(User, '/v1/user/<user_id>')
@@ -83,6 +94,8 @@ api.add_resource(UserLogout, '/v1/logout')
 api.add_resource(TokenRefresh, '/v1/refresh')
 api.add_resource(ChangePassword, '/v1/change-password')
 
+
+api.add_resource(Film, '/v1/film')
 
 if __name__ == '__main__':
     init_db(app)
