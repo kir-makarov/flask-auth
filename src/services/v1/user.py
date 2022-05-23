@@ -71,7 +71,29 @@ class User(Resource):
 
 
 class ChangePassword(Resource):
-    pass
+
+    @classmethod
+    @user_must_match
+    def post(cls, user_id):
+        password_parser = reqparse.RequestParser()
+        password_parser.add_argument(
+            'old_password',
+            type=str,
+            required=True,
+            help="This field cannot be blank."
+        )
+        password_parser.add_argument(
+            'new_password',
+            type=str,
+            required=True,
+            help="This field cannot be blank."
+        )
+        data = password_parser.parse_args()
+        user = UserModel.find_by_id(user_id)
+        if user and UserModel.verify_hash(data['old_password'], user.password):
+            user.update_password(user_id, data['new_password'])
+            return {'message': 'password changed successfully'}, http.HTTPStatus.OK
+        return {'message': 'user not found or incorrect password'}, http.HTTPStatus.NOT_FOUND
 
 
 
