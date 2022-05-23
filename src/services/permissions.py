@@ -11,7 +11,8 @@ def user_must_match(fn):
     def decorator(*args, user_id=None, **kwargs):
         current_user_id = get_jwt_identity()
         if user_id is not None and user_id != current_user_id:
-            return {'message': 'User must match'}, HTTPStatus.UNAUTHORIZED
+            return jsonify({'description': 'User must match',
+                            'error': 'User must match'}), HTTPStatus.UNAUTHORIZED
         return fn(*args, user_id=user_id, **kwargs)
 
     return decorator
