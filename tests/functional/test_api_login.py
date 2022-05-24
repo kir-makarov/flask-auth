@@ -53,6 +53,7 @@ def test_api_login_wrong_password(client):
     result = response.json
     assert result == {"message": "Invalid credentials"}
 
+
 def test_api_login_unknown_user(client):
     test_client = client.test_client()
     response = test_client.post(
@@ -77,3 +78,41 @@ def test_api_login_unknown_user(client):
 
     result = response.json
     assert result == {"message": "Invalid credentials"}
+
+
+def test_api_login_logout(client):
+    test_client = client.test_client()
+    test_client.post(
+        path="/v1/register",
+        json={
+            "username": "test",
+            "password": "test",
+        },
+    )
+    response = test_client.post(
+        path="/v1/login",
+        json={
+            "username": "test",
+            "password": "test",
+        },
+    )
+
+    assert response.status_code == http.HTTPStatus.OK
+
+    result = response.json
+    access_token = result["access_token"]
+    access_header_body = f"Bearer {access_token}"
+
+    response = test_client.post(
+        path="/v1/logout",
+        headers={'Authorization': access_header_body}
+    )
+
+    assert response.status_code == http.HTTPStatus.OK
+
+    response = test_client.post(
+        path="/v1/logout",
+        headers={'Authorization': access_header_body}
+    )
+
+    assert response.status_code == http.HTTPStatus.UNAUTHORIZED
