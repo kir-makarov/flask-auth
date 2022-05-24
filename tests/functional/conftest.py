@@ -1,5 +1,4 @@
 import uuid
-from time import sleep
 
 import pytest
 from flask_jwt_extended import JWTManager
@@ -19,7 +18,6 @@ def client():
     jwt = JWTManager(app)
 
     test_db_uri = "postgresql://admin:admin@127.0.0.1:5432/flask-auth-test-" + uuid.uuid4().hex
-    # test_db_uri = "postgresql://admin:admin@127.0.0.1:5432/flask-auth-test"
 
     create_database(test_db_uri)
 
