@@ -36,11 +36,8 @@ class UserRegister(Resource):
     def post(self):
         data = user_parser.parse_args()
 
-        try:
-            if UserModel.find_by_username(data['username']):
-                return {"message": "A user with that username already exists"}, http.HTTPStatus.BAD_REQUEST
-        except Exception as e:
-            print(e)
+        if UserModel.find_by_username(data['username']):
+            return {"message": "A user with that username already exists"}, http.HTTPStatus.BAD_REQUEST
 
         user = UserModel(data['username'], UserModel.generate_hash(data['password']))
         user.save_to_db()
