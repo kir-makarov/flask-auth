@@ -3,7 +3,7 @@ from flask_jwt_extended import JWTManager
 from flask_restful import Api
 
 from app import app
-from db import db
+from db import db, jwt_redis
 from models.user import UserModel
 
 
@@ -29,3 +29,4 @@ def client():
     with app.app_context():
         db.drop_all()
         db.session.close()
+    jwt_redis.flushdb()
