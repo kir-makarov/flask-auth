@@ -1,34 +1,34 @@
+import uuid
+
 import pytest
-from flask import Flask
 from flask_jwt_extended import JWTManager
 from flask_restful import Api
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy_utils import create_database, drop_database
 
-from services.v1.user import User, UserRegister, UserLogin, UserLogout, TokenRefresh, ChangePassword
+from app import app
+from models.user import UserModel
 
 
 @pytest.fixture(scope='function')
 def client():
-    app = Flask(__name__)
     app.config["JWT_SECRET_KEY"] = "test_key"
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = 60
     api = Api(app)
     jwt = JWTManager(app)
 
-    api.add_resource(User, '/v1/user/<user_id>')
-    api.add_resource(UserRegister, '/v1/register')
-    api.add_resource(UserLogin, '/v1/login')
-    api.add_resource(UserLogout, '/v1/logout')
-    api.add_resource(TokenRefresh, '/v1/refresh')
-    api.add_resource(ChangePassword, '/v1/user/<user_id>/change-password')
+    test_db_uri = "postgresql://admin:admin@127.0.0.1:5432/flask-auth-test-" + uuid.uuid4().hex
 
-    db = SQLAlchemy()
+    create_database(test_db_uri)
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = "postgresql://admin:admin@127.0.0.1:5432/flask-auth-test"
+    app.config['SQLALCHEMY_DATABASE_URI'] = test_db_uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+    db = SQLAlchemy(app)
+
     db.init_app(app)
+    db.create_all()
 
     yield app.test_client()
 
-
-
+    drop_database(test_db_uri)
