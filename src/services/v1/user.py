@@ -125,7 +125,11 @@ class UserLogout(Resource):
         token = get_jwt()
         jti = token["jti"]
         ttype = token["type"]
-        jwt_redis.set(jti, "", ex=settings.ACCESS_EXPIRES)
+
+        if jwt_redis.get(jti):
+            return {'message': 'Token already revoked'}, http.HTTPStatus.UNAUTHORIZED
+
+        jwt_redis.set(jti, "revoked", ex=settings.ACCESS_EXPIRES)
         return jsonify(msg=f"{ttype.capitalize()} token successfully revoked")
 
 
