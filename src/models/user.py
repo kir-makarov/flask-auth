@@ -1,5 +1,7 @@
 import enum
 import uuid
+from time import sleep
+
 from db import db
 from sqlalchemy import Enum
 from sqlalchemy.dialects.postgresql import UUID
