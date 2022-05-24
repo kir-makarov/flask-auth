@@ -16,7 +16,9 @@ app.config["JWT_SECRET_KEY"] = settings.JWT_SECRET_KEY
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = settings.JWT_ACCESS_TOKEN_EXPIRES
 
 api = Api(app)
+app.api = api
 jwt = JWTManager(app)
+app.jwt = jwt
 
 
 @app.before_first_request
