@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
 
-############# Generals #############
+  ############# Generals #############
   postgres:
     image: postgres:13.0-alpine
     container_name: postgres
@@ -25,7 +25,22 @@ services:
     networks:
       - backend
     env_file:
-      -  ./src/.env
+      - ./src/.env
+
+    flask-auth:
+      build: .
+      container_name: flask-auth
+      command: gunicorn wsgi_app:app -b 0.0.0.0:5000 --reload
+      expose:
+        - 5000
+      depends_on:
+        - redis
+        - postgres
+      env_file:
+        - ./scr/.evn
+      networks:
+        - backend
+
 
 
 
