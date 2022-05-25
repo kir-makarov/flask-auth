@@ -93,7 +93,7 @@ class ChangePassword(Resource):
         if user and UserModel.verify_hash(data['old_password'], user.password):
             user.update_password(user_id, UserModel.generate_hash(data['new_password']))
             return {'message': 'password changed successfully'}, http.HTTPStatus.OK
-        return {'message': 'user not found or incorrect password'}, http.HTTPStatus.NOT_FOUND
+        return {'message': 'User not found or incorrect password'}, http.HTTPStatus.NOT_FOUND
 
 
 class UserLogin(Resource):
@@ -115,7 +115,8 @@ class UserLogin(Resource):
             auth_service.save_refresh_token_in_redis(user.id, user_agent, refresh_token)
 
             return {'access_token': access_token,
-                    'refresh_token': refresh_token}, http.HTTPStatus.OK
+                    'refresh_token': refresh_token,
+                    'user_id': str(user.id)}, http.HTTPStatus.OK
         return {'message': 'Invalid credentials'}, http.HTTPStatus.UNAUTHORIZED
 
 
