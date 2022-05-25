@@ -4,7 +4,7 @@ from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 
-from services.v1.user import UserRegister, User, UserLogin, UserLogout, TokenRefresh, ChangePassword
+from services.v1.user import UserRegister, User, UserLogin, UserLogout, TokenRefresh, ChangePassword, Validate
 from services.v1.film import Film
 
 from db import jwt_redis
@@ -95,6 +95,7 @@ api.add_resource(UserLogin, '/v1/login')
 api.add_resource(UserLogout, '/v1/logout')
 api.add_resource(TokenRefresh, '/v1/refresh')
 api.add_resource(ChangePassword, '/v1/user/<user_id>/change-password')
+api.add_resource(Validate, '/v1/validate')
 
 
 api.add_resource(Film, '/v1/film')

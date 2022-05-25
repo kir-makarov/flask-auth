@@ -18,13 +18,13 @@ from services.permissions import user_must_match
 
 user_parser = reqparse.RequestParser()
 user_parser.add_argument(
-    'username',
+    "username",
     type=str,
     required=True,
     help=const.MSG_FIELD_CANNOT_BE_BLANK
 )
 user_parser.add_argument(
-    'password',
+    "password",
     type=str,
     required=True,
     help=const.MSG_FIELD_CANNOT_BE_BLANK
@@ -37,10 +37,10 @@ class UserRegister(Resource):
     def post(self):
         data = user_parser.parse_args()
 
-        if UserModel.find_by_username(data['username']):
+        if UserModel.find_by_username(data["username"]):
             return {"message": const.MSG_USER_ALREADY_EXIST}, http.HTTPStatus.BAD_REQUEST
 
-        user = UserModel(data['username'], UserModel.generate_hash(data['password']))
+        user = UserModel(data["username"], UserModel.generate_hash(data["password"]))
         user.save_to_db()
 
         return {"message": const.MSG_USER_CREATED_SUCCESSFULLY}, http.HTTPStatus.CREATED
@@ -78,13 +78,13 @@ class ChangePassword(Resource):
     def post(cls, user_id):
         password_parser = reqparse.RequestParser()
         password_parser.add_argument(
-            'old_password',
+            "old_password",
             type=str,
             required=True,
             help=const.MSG_FIELD_CANNOT_BE_BLANK
         )
         password_parser.add_argument(
-            'new_password',
+            "new_password",
             type=str,
             required=True,
             help=const.MSG_FIELD_CANNOT_BE_BLANK
@@ -165,3 +165,24 @@ class TokenRefresh(Resource):
 
         return {"access_token": new_token,
                 "refresh_token": refresh_token}, http.HTTPStatus.OK
+
+
+class Validate(Resource):
+    @jwt_required(optional=True)
+    def post(self):
+        current_user_id = get_jwt_identity()
+        if not current_user_id:
+            return {"verified": "false"}
+
+        token = get_jwt()
+        jti = token["jti"]
+
+        if jwt_redis.get(jti):
+            return {"verified": "false"}
+
+        user = UserModel.find_by_id(current_user_id)
+        if user:
+            return {"verified": "true",
+                    "role": str(user.access)}
+
+        return {"verified": "false"}
