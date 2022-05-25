@@ -135,6 +135,7 @@ class UserLogout(Resource):
 
 refresh_post_parser = reqparse.RequestParser()
 refresh_post_parser.add_argument("User-Agent", location="headers")
+refresh_post_parser.add_argument("Authorization", location="headers")
 
 
 class TokenRefresh(Resource):
@@ -142,9 +143,15 @@ class TokenRefresh(Resource):
     def post(self):
         data = refresh_post_parser.parse_args()
         user_agent = data["User-Agent"]
+        token_from_header = data.get("Authorization")
+        if not token_from_header:
+            return {'message': 'No token'}, http.HTTPStatus.UNAUTHORIZED
+        token_from_header = token_from_header.removeprefix("Bearer ")
+
         current_user_id = get_jwt_identity()
 
-        if not auth_service.get_refresh_token_from_redis(current_user_id, user_agent):
+        token_from_redis = auth_service.get_refresh_token_from_redis(current_user_id, user_agent)
+        if not token_from_redis or not token_from_header or token_from_header != token_from_redis:
             return {'message': 'Invalid token'}, http.HTTPStatus.UNAUTHORIZED
 
         new_token = create_access_token(identity=current_user_id, fresh=False)
