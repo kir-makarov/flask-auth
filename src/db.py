@@ -6,11 +6,8 @@ import redis
 db = SQLAlchemy()
 
 jwt_redis = redis.StrictRedis(
-    host="localhost", port=6379, db=0, decode_responses=True
+    host=settings.redis.host,
+    port=settings.redis.port,
+    db=settings.redis.db,
+    decode_responses=True
 )
-
-
-def init_db(app: Flask):
-    app.config['SQLALCHEMY_DATABASE_URI'] = settings.postgres.uri
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    db.init_app(app)

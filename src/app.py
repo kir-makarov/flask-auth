@@ -1,5 +1,5 @@
 import http
-from db import db, init_db
+from db import db
 from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
@@ -14,6 +14,9 @@ app = Flask(__name__)
 
 app.config["JWT_SECRET_KEY"] = settings.JWT_SECRET_KEY
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = settings.JWT_ACCESS_TOKEN_EXPIRES
+app.config['SQLALCHEMY_DATABASE_URI'] = settings.postgres.uri
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 
 api = Api(app)
 app.api = api
@@ -100,6 +103,7 @@ api.add_resource(Validate, '/v1/validate')
 
 api.add_resource(Film, '/v1/film')
 
-if __name__ == '__main__':
-    init_db(app)
-    app.run(port=5000, debug=True)
+db.init_app(app)
+# if __name__ == '__main__':
+#     db.init_app(app)
+#     app.run(port=5000, debug=True)
