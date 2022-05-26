@@ -27,19 +27,33 @@ services:
     env_file:
       - ./src/.env
 
-    flask-auth:
-      build: .
-      container_name: flask-auth
-      command: gunicorn wsgi_app:app -b 0.0.0.0:5000 --reload
-      expose:
-        - 5000
-      depends_on:
-        - redis
-        - postgres
-      env_file:
-        - ./scr/.evn
-      networks:
-        - backend
+  nginx:
+    build:
+      context: ./nginx
+      dockerfile: Dockerfile
+    container_name: nginx
+    ports:
+      - 80:80
+    depends_on:
+      - flask-auth
+    networks:
+      - backend
+
+  flask-auth:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: flask-auth
+    command: gunicorn wsgi_app:app -b 0.0.0.0:5000 --reload
+    expose:
+     - 5000
+    depends_on:
+      - redis
+      - postgres
+    env_file:
+      - ./src/.env
+    networks:
+      - backend
 
 
 
