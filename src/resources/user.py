@@ -108,7 +108,7 @@ class ChangePassword(Resource):
        """
         user = UserModel.find_by_id(user_id)
         if user and UserModel.verify_hash(body.old_password, user.password):
-            user.update_password(UserModel.generate_hash(body.new_password))
+            user.update_password(user_id, UserModel.generate_hash(body.new_password))
             return ResponseModel(
                 message=const.MSG_PASSWORD_CHANGED_SUCCESSFULLY,
                 status=HTTPStatus.OK

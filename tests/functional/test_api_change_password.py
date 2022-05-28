@@ -64,9 +64,8 @@ def test_api_change_password_wrong_pass(client):
         json={"old_password": "wrong_password",
               "new_password": "test_new"})
 
-    assert response.status_code == http.HTTPStatus.NOT_FOUND
     result = response.json
-    assert result == {"message": "User not found or incorrect password"}
+    assert result == {"message": "User not found or incorrect password", "status": http.HTTPStatus.NOT_FOUND}
 
 
 def test_api_change_password_for_wrong_user(client):
@@ -90,7 +89,7 @@ def test_api_change_password_for_wrong_user(client):
 
     result = response.json
     access_token = result["access_token"]
-    user_id = "some-wrong-user-id"
+    user_id = "11111111-1111-1111-1111-111111111111"  # non existent id
     access_header_body = f"Bearer {access_token}"
 
     response = test_client.post(
@@ -99,6 +98,5 @@ def test_api_change_password_for_wrong_user(client):
         json={"old_password": "test",
               "new_password": "test_new"})
 
-    assert response.status_code == http.HTTPStatus.NOT_FOUND
     result = response.json
-    assert result == {"message": "User not found or incorrect password"}
+    assert result == {"message": "User not found or incorrect password", "status": http.HTTPStatus.NOT_FOUND}

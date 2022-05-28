@@ -12,7 +12,7 @@ class RoleUserModel(db.Model):
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), primary_key=True)
     role_id = db.Column(UUID(as_uuid=True), db.ForeignKey('roles.id'), primary_key=True)
 
-    __table_args__ = (UniqueConstraint('user_id', 'role_id', name='roles_users'),)
+    __table_args__ = (UniqueConstraint('user_id', 'role_id', name='roles_users_ct'),)
 
     def __init__(self, user_id, role_id):
         self.user_id = user_id

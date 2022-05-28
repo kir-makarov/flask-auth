@@ -11,7 +11,7 @@ def test_api_login_siccessful(client):
         },
     )
 
-    assert response.status_code == http.HTTPStatus.CREATED
+    assert response.json['status'] == http.HTTPStatus.CREATED
 
     response = test_client.post(
         path="/v1/login",
@@ -38,7 +38,7 @@ def test_api_login_wrong_password(client):
         },
     )
 
-    assert response.status_code == http.HTTPStatus.CREATED
+    assert response.json['status'] == http.HTTPStatus.CREATED
 
     response = test_client.post(
         path="/v1/login",
@@ -64,7 +64,7 @@ def test_api_login_unknown_user(client):
         },
     )
 
-    assert response.status_code == http.HTTPStatus.CREATED
+    assert response.json['status'] == http.HTTPStatus.CREATED
 
     response = test_client.post(
         path="/v1/login",
