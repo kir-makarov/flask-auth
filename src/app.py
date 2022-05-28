@@ -105,7 +105,7 @@ api.add_resource(Validate, '/v1/validate')
 
 api.add_resource(Film, '/v1/film')
 
-# db.init_app(app)
-if __name__ == '__main__':
-    db.init_app(app)
-    app.run(port=5000, debug=True)
+db.init_app(app)
+# if __name__ == '__main__':
+#     db.init_app(app)
+#     app.run(port=5000, debug=True)
