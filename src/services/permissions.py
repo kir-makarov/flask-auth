@@ -13,7 +13,6 @@ def user_must_match(fn):
         if user_id is not None and user_id != current_user_id:
             return {"message": "User not found or incorrect password"}, HTTPStatus.NOT_FOUND
         return fn(*args, user_id=user_id, **kwargs)
-
     return decorator
 
 
@@ -29,7 +28,5 @@ def check_access_level(access_level):
             if not user.allowed(access_level):
                 return {'message': 'Access closed'}, HTTPStatus.NOT_FOUND
             return fn(*args, **kwargs)
-
         return decorator
-
     return wrapper
