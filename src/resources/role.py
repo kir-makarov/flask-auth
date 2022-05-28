@@ -12,7 +12,6 @@ class RoleRequestModel(BaseModel):
 
 class ResponseModel(BaseModel):
     message: str
-    status: HTTPStatus
 
 
 class Role(Resource):
@@ -32,6 +31,5 @@ class Role(Resource):
         role.save_to_db()
         return ResponseModel(
             message='Role created successfully',
-            status=HTTPStatus.OK
-        )
+        ), HTTPStatus.OK
 

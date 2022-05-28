@@ -8,8 +8,6 @@ from pydantic import BaseModel
 
 class ResponseModel(BaseModel):
     message: str
-    status: HTTPStatus
-
 
 class UserList(Resource):
     @staticmethod
@@ -67,8 +65,7 @@ class UserRegister(Resource):
         user.save_to_db()
         return ResponseModel(
             message=const.MSG_USER_CREATED_SUCCESSFULLY,
-            status=HTTPStatus.CREATED
-        )
+        ), HTTPStatus.CREATED
 
 
 class ChangePasswordRequest(BaseModel):
@@ -111,9 +108,7 @@ class ChangePassword(Resource):
             user.update_password(user_id, UserModel.generate_hash(body.new_password))
             return ResponseModel(
                 message=const.MSG_PASSWORD_CHANGED_SUCCESSFULLY,
-                status=HTTPStatus.OK
-            )
+            ), HTTPStatus.OK
         return ResponseModel(
             message=const.MSG_USER_NOT_FOUND_OR_INCORRECT_PASSWORD,
-            status=HTTPStatus.NOT_FOUND
-        )
+        ), HTTPStatus.NOT_FOUND

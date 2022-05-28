@@ -10,7 +10,6 @@ from pydantic import BaseModel
 
 class ResponseModel(BaseModel):
     message: str
-    status: HTTPStatus
 
 
 class RoleUser(Resource):
@@ -28,8 +27,7 @@ class RoleUser(Resource):
         if not role:
             return ResponseModel(
                 message=const.MSG_ROLE_ALREADY_EXIST,
-                status=HTTPStatus.BAD_REQUEST
-            )
+            ), HTTPStatus.BAD_REQUEST
 
         try:
             role_user = RoleUserModel(
@@ -39,13 +37,11 @@ class RoleUser(Resource):
             role_user.save_to_db()
             return ResponseModel(
                 message=const.MSG_ROLE_SET_USER,
-                status=HTTPStatus.OK
-            )
+            ), HTTPStatus.OK
         except IntegrityError:
             return ResponseModel(
                 message=const.MSG_ROLE_ALREADY_USER,
-                status=HTTPStatus.BAD_REQUEST
-            )
+            ), HTTPStatus.BAD_REQUEST
 
     # TODO
     @validate()
@@ -59,7 +55,6 @@ class RoleUser(Resource):
 
         role = RoleModel.find_by_name(body.role)
         user.delete_role(role)
-
         return ResponseModel(
             message=const.MSG_ROLE_UNSET_USER,
             status=HTTPStatus.OK

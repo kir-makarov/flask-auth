@@ -89,6 +89,10 @@ class UserModel(db.Model):
                 'roles': [role.json() for role in self.roles]
                 }
 
+    @property
+    def roles_names_list(self) -> list[str]:
+        return [role.name for role in self.roles]
+
     @classmethod
     def find_all(cls):
         return cls.query.all()
