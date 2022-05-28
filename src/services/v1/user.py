@@ -35,6 +35,42 @@ user_parser.add_argument("User-Agent", location="headers")
 class UserRegister(Resource):
 
     def post(self):
+        """
+                Registration method for users
+                ---
+                tags:
+                  - user
+                parameters:
+                  - in: body
+                    name: body
+                    schema:
+                      id: UserRegister
+                      required:
+                        - username
+                        - password
+                      properties:
+                        username:
+                          type: string
+                          description: The user's username.
+                        password:
+                          type: string
+                          description: The user's password.
+                responses:
+                  201:
+                    description: Message that user was created
+                    schema:
+                      properties:
+                        message:
+                          type: string
+                          description: User created successfully.
+                  400:
+                    description: Bad request response
+                    schema:
+                      properties:
+                        message:
+                          type: string
+                          description: Response message
+                """
         data = user_parser.parse_args()
 
         if UserModel.find_by_username(data["username"]):
@@ -76,6 +112,35 @@ class ChangePassword(Resource):
     @classmethod
     @user_must_match
     def post(cls, user_id):
+        """
+                Change password method for users
+                ---
+                tags:
+                  - user
+                parameters:
+                  - in: body
+                    name: body
+                    schema:
+                      id: ChangePassword
+                      required:
+                        - old_password
+                        - new_password
+                      properties:
+                        old_password:
+                          type: string
+                          desctription: The user's current password
+                        new_password:
+                          type: string
+                          description: The user's new password.
+                responses:
+                  200:
+                    description: Message that user was created
+                    schema:
+                      properties:
+                        message:
+                          type: string
+                          description: Response message
+                """
         password_parser = reqparse.RequestParser()
         password_parser.add_argument(
             "old_password",
@@ -101,6 +166,48 @@ class UserLogin(Resource):
 
     @classmethod
     def post(cls):
+        """
+                Login method for users
+                ---
+                tags:
+                  - user
+                parameters:
+                  - in: body
+                    name: body
+                    schema:
+                      id: UserLogin
+                      required:
+                        - username
+                        - password
+                      properties:
+                        email:
+                          type: string
+                          description: The user's username.
+                        password:
+                          type: string
+                          description: The user's password.
+                responses:
+                  200:
+                    description: Success user's login
+                    schema:
+                      properties:
+                        access_token:
+                          type: string
+                          description: User's access token
+                        refresh_token:
+                          type: string
+                          description: User's refresh token
+                        user_id:
+                          type: string
+                          description: User's id
+                  400:
+                    description: Bad request response
+                    schema:
+                      properties:
+                        message:
+                          type: string
+                          description: Response message
+                """
         data = user_parser.parse_args()
         user = UserModel.find_by_username(data["username"])
         user_agent = data["User-Agent"]
@@ -124,6 +231,31 @@ class UserLogin(Resource):
 class UserLogout(Resource):
     @jwt_required()
     def post(self):
+        """
+                Logout method for users
+                ---
+                tags:
+                  - user
+                responses:
+                  200:
+                    description: Success user's logout
+                    schema:
+                      properties:
+                        message:
+                          type: string
+                          description: Response message
+                  401:
+                    description: Authorization error response
+                    schema:
+                      properties:
+                        description:
+                          type: string
+                          description: Response status
+                        error:
+                          type: string
+                          description: Response data
+
+                """
         token = get_jwt()
         jti = token["jti"]
         ttype = token["type"]
@@ -143,6 +275,30 @@ refresh_post_parser.add_argument("Authorization", location="headers")
 class TokenRefresh(Resource):
     @jwt_required(refresh=True)
     def post(self):
+        """
+               Refresh token method for users
+               ---
+               tags:
+                 - user
+               responses:
+                 200:
+                   description: Success user's token refresh
+                   schema:
+                     properties:
+                       access_token:
+                         type: string
+                         description: Response data
+                       refresh_token:
+                         type: string
+                         description: Response data
+                 401:
+                   description: Authorization error response
+                   schema:
+                     properties:
+                       message:
+                         type: string
+                         description: Response message
+               """
         data = refresh_post_parser.parse_args()
         user_agent = data["User-Agent"]
         token_from_header = data.get("Authorization")
@@ -170,6 +326,34 @@ class TokenRefresh(Resource):
 class Validate(Resource):
     @jwt_required(optional=True)
     def post(self):
+        """
+               Refresh token method for users
+               ---
+               tags:
+                 - user
+               responses:
+                 200:
+                   description: Validate user's roles
+                   schema:
+                     properties:
+                       verified:
+                         type: boolean
+                         description: Response status
+                       role:
+                         type: string
+                         description: Response data
+
+                 401:
+                   description: Authorization error response
+                   schema:
+                     properties:
+                       description:
+                         type: string
+                         description: Response status
+                       error:
+                         type: string
+                         description: Response data
+               """
         current_user_id = get_jwt_identity()
         if not current_user_id:
             return {"verified": "false"}
