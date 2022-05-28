@@ -4,14 +4,9 @@ from flasgger import Swagger
 from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
-
-# from services.v1.user import UserRegister, User, UserLogin, UserLogout, TokenRefresh, ChangePassword, Validate
-# from services.v1.film import Film
-
 from db import jwt_redis
 from core.config import settings
-from resources.auth import TokenRefresh, Validate, Login, Logout
-from resources.user import User, UserRegister, ChangePassword
+
 
 app = Flask(__name__)
 
@@ -96,17 +91,31 @@ def revoked_token_callback(jwt_header, jwt_payload: dict):
     }), http.HTTPStatus.UNAUTHORIZED
 
 
+from resources.auth import TokenRefresh, Validate, Login, Logout
+from resources.user import User, UserList, UserRegister, ChangePassword
+from resources.role_user import RoleUser
+from resources.role import Role
+
+
+# USER
+api.add_resource(UserList, '/v1/user/')
 api.add_resource(User, '/v1/user/<user_id>')
 api.add_resource(UserRegister, '/v1/register')
+api.add_resource(ChangePassword, '/v1/user/<user_id>/change-password')
+api.add_resource(RoleUser, '/v1/user/<user_id>/role/')
+
+# AUTH
 api.add_resource(Login, '/v1/login')
 api.add_resource(Logout, '/v1/logout')
 api.add_resource(TokenRefresh, '/v1/refresh')
-api.add_resource(ChangePassword, '/v1/user/<user_id>/change-password')
 api.add_resource(Validate, '/v1/validate')
 
-# api.add_resource(Film, '/v1/film')
+# ROLE
+api.add_resource(Role, '/v1/role/')
 
+# api.add_resource(Film, '/v1/film')
 # db.init_app(app)
+
 if __name__ == '__main__':
     db.init_app(app)
     app.run(port=5000, debug=True)
