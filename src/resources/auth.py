@@ -1,3 +1,4 @@
+import enum
 import http
 from flask import jsonify
 from flask_jwt_extended import (
@@ -25,6 +26,13 @@ class ResponseToken(BaseModel):
     access_token: str
     refresh_token: str
     user_id: str
+
+
+ACCESS = dict(guest=1, user=2, editor=4, admin=8)
+
+def get_access_level(roles_names_list: list):
+    level = [ACCESS.get(role, 0) for role in roles_names_list]
+    return max(level)
 
 
 class Login(Resource):
@@ -74,10 +82,11 @@ class Login(Resource):
         """
         user = UserModel.find_by_username(body.username)
         if user and UserModel.verify_hash(body.password, user.password):
+
             access_token = create_access_token(
                 identity=user.id,
                 fresh=True,
-                additional_claims={"access_level": user.roles}
+                additional_claims={"role": user.roles_names_list}
             )
             refresh_token = create_refresh_token(user.id)
             auth_service.delete_user_refresh_token(user.id, request.user_agent)
@@ -155,26 +164,7 @@ class TokenRefresh(Resource):
                      type: string
                      description: Response message
         """
-        # token_from_header = request.headers.get("Authorization")
-        # if not token_from_header:
-        #     return {"message": "No token"}, http.HTTPStatus.UNAUTHORIZED
-        #
-        # current_user_id = get_jwt_identity()
-        # new_token = create_access_token(identity=current_user_id, fresh=False)
-        # refresh_token = create_refresh_token(current_user_id)
-        #
-        # token_from_redis = auth_service.get_refresh_token_from_redis(current_user_id, request.user_agent)
-        #
-        # token_from_header = token_from_header.removeprefix(const.JWT_PREFIX)
-        # if not token_from_redis or not token_from_header or token_from_header != token_from_redis:
-        #     print('BAD')
-        # else:
-        #     print(token_from_redis)
-        #     print(token_from_header)
-        # return {"access_token": new_token,
-        #         "refresh_token": refresh_token}, http.HTTPStatus.OK
 
-        # data = refresh_post_parser.parse_args()
         user_agent = request.headers.get("User-Agent")
         token_from_header = request.headers.get("Authorization")
         if not token_from_header:
@@ -198,6 +188,7 @@ class TokenRefresh(Resource):
 
 
 class Validate(Resource):
+
     @jwt_required(optional=True)
     def post(self):
         """
@@ -240,6 +231,6 @@ class Validate(Resource):
         user = UserModel.find_by_id(current_user_id)
         if user:
             return {"verified": "true",
-                    "role": str(user.access)}
+                    "role": user.roles_names_list}
 
         return {"verified": "false"}

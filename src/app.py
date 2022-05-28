@@ -105,10 +105,10 @@ api.add_resource(ChangePassword, '/v1/user/<user_id>/change-password')
 api.add_resource(RoleUser, '/v1/user/<user_id>/role/')
 
 # AUTH
-api.add_resource(Login, '/v1/login')
-api.add_resource(Logout, '/v1/logout')
-api.add_resource(TokenRefresh, '/v1/refresh')
-api.add_resource(Validate, '/v1/validate')
+api.add_resource(Login, '/v1/login/')
+api.add_resource(Logout, '/v1/logout/')
+api.add_resource(TokenRefresh, '/v1/refresh/')
+api.add_resource(Validate, '/v1/validate/')
 
 # ROLE
 api.add_resource(Role, '/v1/role/')
