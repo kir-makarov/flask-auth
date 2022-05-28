@@ -14,7 +14,6 @@ from models.user import UserModel
 from db import jwt_redis
 from services.auth import auth_service
 
-
 from resources.user import UserRequestModel
 from flask_pydantic import validate
 from pydantic import BaseModel
@@ -30,6 +29,48 @@ class ResponseToken(BaseModel):
 class Login(Resource):
     @validate()
     def post(self, body: UserRequestModel):
+        """
+            Login method for users
+            ---
+            tags:
+              - user
+            parameters:
+              - in: body
+                name: body
+                schema:
+                  id: UserLogin
+                  required:
+                    - username
+                    - password
+                  properties:
+                    email:
+                      type: string
+                      description: The user's username.
+                    password:
+                      type: string
+                      description: The user's password.
+            responses:
+              200:
+                description: Success user's login
+                schema:
+                  properties:
+                    access_token:
+                      type: string
+                      description: User's access token
+                    refresh_token:
+                      type: string
+                      description: User's refresh token
+                    user_id:
+                      type: string
+                      description: User's id
+              400:
+                description: Bad request response
+                schema:
+                  properties:
+                    message:
+                      type: string
+                      description: Response message
+        """
         user = UserModel.find_by_username(body.username)
         if user and UserModel.verify_hash(body.password, user.password):
             access_token = create_access_token(
@@ -50,6 +91,30 @@ class Login(Resource):
 class Logout(Resource):
     @jwt_required()
     def post(self):
+        """
+            Logout method for users
+            ---
+            tags:
+              - user
+            responses:
+              200:
+                description: Success user's logout
+                schema:
+                  properties:
+                    message:
+                      type: string
+                      description: Response message
+              401:
+                description: Authorization error response
+                schema:
+                  properties:
+                    description:
+                      type: string
+                      description: Response status
+                    error:
+                      type: string
+                      description: Response data
+        """
         token = get_jwt()
         jti = token["jti"]
         ttype = token["type"]
@@ -64,6 +129,30 @@ class Logout(Resource):
 class TokenRefresh(Resource):
     @jwt_required(refresh=True)
     def post(self):
+        """
+            Refresh token method for users
+            ---
+            tags:
+             - user
+            responses:
+             200:
+               description: Success user's token refresh
+               schema:
+                 properties:
+                   access_token:
+                     type: string
+                     description: Response data
+                   refresh_token:
+                     type: string
+                     description: Response data
+             401:
+               description: Authorization error response
+               schema:
+                 properties:
+                   message:
+                     type: string
+                     description: Response message
+        """
         token_from_header = request.headers.get("Authorization")
         if not token_from_header:
             return {"message": "No token"}, http.HTTPStatus.UNAUTHORIZED
@@ -111,6 +200,33 @@ class TokenRefresh(Resource):
 class Validate(Resource):
     @jwt_required(optional=True)
     def post(self):
+        """
+            Refresh token method for users
+            ---
+            tags:
+              - user
+            responses:
+              200:
+                description: Validate user's roles
+                schema:
+                  properties:
+                    verified:
+                      type: boolean
+                      description: Response status
+                    role:
+                      type: string
+                      description: Response data
+              401:
+                description: Authorization error response
+                schema:
+                  properties:
+                    description:
+                      type: string
+                      description: Response status
+                    error:
+                      type: string
+                      description: Response data
+        """
         current_user_id = get_jwt_identity()
         if not current_user_id:
             return {"verified": "false"}

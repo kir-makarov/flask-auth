@@ -34,6 +34,33 @@ class UserRequestModel(BaseModel):
 class UserRegister(Resource):
     @validate()
     def post(self, body: UserRequestModel):
+        """
+           Refresh token method for users
+           ---
+           tags:
+             - user
+           responses:
+             200:
+               description: Validate user's roles
+               schema:
+                 properties:
+                   verified:
+                     type: boolean
+                     description: Response status
+                   role:
+                     type: string
+                     description: Response data
+             401:
+               description: Authorization error response
+               schema:
+                 properties:
+                   description:
+                     type: string
+                     description: Response status
+                   error:
+                     type: string
+                     description: Response data
+       """
         if UserModel.find_by_username(body.username):
             return {"message": const.MSG_USER_ALREADY_EXIST}, HTTPStatus.BAD_REQUEST
         user = UserModel(body.username, UserModel.generate_hash(body.password))
@@ -52,6 +79,33 @@ class ChangePasswordRequest(BaseModel):
 class ChangePassword(Resource):
     @validate()
     def post(self, user_id, body: ChangePasswordRequest):
+        """
+           Refresh token method for users
+           ---
+           tags:
+             - user
+           responses:
+             200:
+               description: Validate user's roles
+               schema:
+                 properties:
+                   verified:
+                     type: boolean
+                     description: Response status
+                   role:
+                     type: string
+                     description: Response data
+             401:
+               description: Authorization error response
+               schema:
+                 properties:
+                   description:
+                     type: string
+                     description: Response status
+                   error:
+                     type: string
+                     description: Response data
+       """
         user = UserModel.find_by_id(user_id)
         if user and UserModel.verify_hash(body.old_password, user.password):
             user.update_password(UserModel.generate_hash(body.new_password))
@@ -63,6 +117,3 @@ class ChangePassword(Resource):
             message=const.MSG_USER_NOT_FOUND_OR_INCORRECT_PASSWORD,
             status=HTTPStatus.NOT_FOUND
         )
-
-
-
