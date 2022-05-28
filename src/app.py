@@ -1,5 +1,6 @@
 import http
 from db import db
+from flasgger import Swagger
 from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
@@ -23,6 +24,7 @@ app.api = api
 jwt = JWTManager(app)
 app.jwt = jwt
 
+swagger = Swagger(app=app)
 
 @app.before_first_request
 def create_tables():
@@ -103,7 +105,7 @@ api.add_resource(Validate, '/v1/validate')
 
 api.add_resource(Film, '/v1/film')
 
-db.init_app(app)
-# if __name__ == '__main__':
-#     db.init_app(app)
-#     app.run(port=5000, debug=True)
+# db.init_app(app)
+if __name__ == '__main__':
+    db.init_app(app)
+    app.run(port=5000, debug=True)
