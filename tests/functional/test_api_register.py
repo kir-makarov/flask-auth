@@ -12,10 +12,10 @@ def test_api_register_successful(client):
         },
     )
 
-    assert response.json['status'] == http.HTTPStatus.CREATED
+    assert response.status_code ==  http.HTTPStatus.CREATED
 
     result = response.json
-    assert result == {"message": "User created successfully.", "status": 201}
+    assert result == {"message": "User created successfully."}
 
 
 def test_api_register_already_registered(client):
@@ -29,7 +29,7 @@ def test_api_register_already_registered(client):
         },
     )
 
-    assert response.json['status'] == http.HTTPStatus.CREATED
+    assert response.status_code == http.HTTPStatus.CREATED
 
     response = test_client.post(
         path="/v1/register",

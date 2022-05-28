@@ -28,7 +28,7 @@ def test_api_validate_ok(client):
 
     assert response.status_code == http.HTTPStatus.OK
     result = response.json
-    assert result == {"verified": "true", "role": "Access.user"}
+    assert result == {"verified": "true", "role": []}
 
 
 def test_api_validate_after_logout(client):
