@@ -24,6 +24,7 @@ from flask_restful import request, Resource
 class ResponseToken(BaseModel):
     access_token: str
     refresh_token: str
+    user_id: str
 
 
 class Login(Resource):
@@ -84,6 +85,7 @@ class Login(Resource):
             return ResponseToken(
                 access_token=access_token,
                 refresh_token=refresh_token,
+                user_id=str(user.id)
             ), HTTPStatus.OK
         return {"message": const.MSG_INVALID_CREDENTIALS}, http.HTTPStatus.UNAUTHORIZED
 
@@ -153,48 +155,46 @@ class TokenRefresh(Resource):
                      type: string
                      description: Response message
         """
-        token_from_header = request.headers.get("Authorization")
-        if not token_from_header:
-            return {"message": "No token"}, http.HTTPStatus.UNAUTHORIZED
-
-        current_user_id = get_jwt_identity()
-        new_token = create_access_token(identity=current_user_id, fresh=False)
-        refresh_token = create_refresh_token(current_user_id)
-
-        token_from_redis = auth_service.get_refresh_token_from_redis(current_user_id, request.user_agent)
-
-        token_from_header = token_from_header.removeprefix(const.JWT_PREFIX)
-        if not token_from_redis or not token_from_header or token_from_header != token_from_redis:
-            print('BAD')
-        else:
-            print(token_from_redis)
-            print(token_from_header)
+        # token_from_header = request.headers.get("Authorization")
+        # if not token_from_header:
+        #     return {"message": "No token"}, http.HTTPStatus.UNAUTHORIZED
+        #
+        # current_user_id = get_jwt_identity()
+        # new_token = create_access_token(identity=current_user_id, fresh=False)
+        # refresh_token = create_refresh_token(current_user_id)
+        #
+        # token_from_redis = auth_service.get_refresh_token_from_redis(current_user_id, request.user_agent)
+        #
+        # token_from_header = token_from_header.removeprefix(const.JWT_PREFIX)
+        # if not token_from_redis or not token_from_header or token_from_header != token_from_redis:
+        #     print('BAD')
+        # else:
+        #     print(token_from_redis)
+        #     print(token_from_header)
         # return {"access_token": new_token,
         #         "refresh_token": refresh_token}, http.HTTPStatus.OK
 
         # data = refresh_post_parser.parse_args()
-        # user_agent = data["User-Agent"]
-        # token_from_header = data.get("Authorization")
-        # print(token_from_header)
-        # if not token_from_header:
-        #     return {"message": "No token"}, http.HTTPStatus.UNAUTHORIZED
-        #
-        # #token_from_header = token_from_header.removeprefix(const.JWT_PREFIX)
-        # current_user_id = get_jwt_identity()
-        # print(current_user_id)
-        # # token_from_redis = auth_service.get_refresh_token_from_redis(current_user_id, user_agent)
-        # # if not token_from_redis or not token_from_header or token_from_header != token_from_redis:
-        # #     return {"message": const.MSG_INVALID_TOKEN}, http.HTTPStatus.UNAUTHORIZED
-        #
-        # new_token = create_access_token(identity=current_user_id, fresh=False)
-        #
-        # refresh_token = create_refresh_token(current_user_id)
-        #
-        # # auth_service.delete_user_refresh_token(current_user_id, user_agent)
-        # # auth_service.save_refresh_token_in_redis(current_user_id, user_agent, refresh_token)
-        #
-        # return {"access_token": new_token,
-        #         "refresh_token": refresh_token}, http.HTTPStatus.OK
+        user_agent = request.headers.get("User-Agent")
+        token_from_header = request.headers.get("Authorization")
+        if not token_from_header:
+            return {"message": "No token"}, http.HTTPStatus.UNAUTHORIZED
+
+        token_from_header = token_from_header.removeprefix(const.JWT_PREFIX)
+        current_user_id = get_jwt_identity()
+        token_from_redis = auth_service.get_refresh_token_from_redis(current_user_id, user_agent)
+        if not token_from_redis or not token_from_header or token_from_header != token_from_redis:
+            return {"message": const.MSG_INVALID_TOKEN}, http.HTTPStatus.UNAUTHORIZED
+
+        new_token = create_access_token(identity=current_user_id, fresh=False)
+
+        refresh_token = create_refresh_token(current_user_id)
+
+        auth_service.delete_user_refresh_token(current_user_id, user_agent)
+        auth_service.save_refresh_token_in_redis(current_user_id, user_agent, refresh_token)
+
+        return {"access_token": new_token,
+                "refresh_token": refresh_token}, http.HTTPStatus.OK
 
 
 class Validate(Resource):

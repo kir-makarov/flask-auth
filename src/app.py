@@ -5,11 +5,13 @@ from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
 
-from services.v1.user import UserRegister, User, UserLogin, UserLogout, TokenRefresh, ChangePassword, Validate
-from services.v1.film import Film
+# from services.v1.user import UserRegister, User, UserLogin, UserLogout, TokenRefresh, ChangePassword, Validate
+# from services.v1.film import Film
 
 from db import jwt_redis
 from core.config import settings
+from resources.auth import TokenRefresh, Validate, Login, Logout
+from resources.user import User, UserRegister, ChangePassword
 
 app = Flask(__name__)
 
@@ -18,13 +20,13 @@ app.config["JWT_ACCESS_TOKEN_EXPIRES"] = settings.JWT_ACCESS_TOKEN_EXPIRES
 app.config['SQLALCHEMY_DATABASE_URI'] = settings.postgres.uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-
 api = Api(app)
 app.api = api
 jwt = JWTManager(app)
 app.jwt = jwt
 
 swagger = Swagger(app=app)
+
 
 @app.before_first_request
 def create_tables():
@@ -96,16 +98,15 @@ def revoked_token_callback(jwt_header, jwt_payload: dict):
 
 api.add_resource(User, '/v1/user/<user_id>')
 api.add_resource(UserRegister, '/v1/register')
-api.add_resource(UserLogin, '/v1/login')
-api.add_resource(UserLogout, '/v1/logout')
+api.add_resource(Login, '/v1/login')
+api.add_resource(Logout, '/v1/logout')
 api.add_resource(TokenRefresh, '/v1/refresh')
 api.add_resource(ChangePassword, '/v1/user/<user_id>/change-password')
 api.add_resource(Validate, '/v1/validate')
 
+# api.add_resource(Film, '/v1/film')
 
-api.add_resource(Film, '/v1/film')
-
-db.init_app(app)
-# if __name__ == '__main__':
-#     db.init_app(app)
-#     app.run(port=5000, debug=True)
+# db.init_app(app)
+if __name__ == '__main__':
+    db.init_app(app)
+    app.run(port=5000, debug=True)

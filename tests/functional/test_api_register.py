@@ -12,10 +12,10 @@ def test_api_register_successful(client):
         },
     )
 
-    assert response.status_code == http.HTTPStatus.CREATED
+    assert response.json['status'] == http.HTTPStatus.CREATED
 
     result = response.json
-    assert result == {"message": "User created successfully."}
+    assert result == {"message": "User created successfully.", "status": 201}
 
 
 def test_api_register_already_registered(client):
@@ -29,7 +29,7 @@ def test_api_register_already_registered(client):
         },
     )
 
-    assert response.status_code == http.HTTPStatus.CREATED
+    assert response.json['status'] == http.HTTPStatus.CREATED
 
     response = test_client.post(
         path="/v1/register",
@@ -57,4 +57,5 @@ def test_api_register_wrong_format(client):
     assert response.status_code == http.HTTPStatus.BAD_REQUEST
 
     result = response.json
-    assert result == {"message": {"password": "This field cannot be blank."}}
+    assert result == {'validation_error': {
+        'body_params': [{'loc': ['password'], 'msg': 'field required', 'type': 'value_error.missing'}]}}
