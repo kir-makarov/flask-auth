@@ -1,14 +1,9 @@
 import http
-from db import db
-from flasgger import Swagger
+
 from flask import Flask, jsonify
 from flask_restful import Api
 from flask_jwt_extended import JWTManager
-
-from services.v1.user import UserRegister, User, UserLogin, UserLogout, TokenRefresh, ChangePassword, Validate
-from services.v1.film import Film
-
-from db import jwt_redis
+from db import jwt_redis, db
 from core.config import settings
 
 app = Flask(__name__)
@@ -24,7 +19,6 @@ app.api = api
 jwt = JWTManager(app)
 app.jwt = jwt
 
-swagger = Swagger(app=app)
 
 @app.before_first_request
 def create_tables():
@@ -94,18 +88,29 @@ def revoked_token_callback(jwt_header, jwt_payload: dict):
     }), http.HTTPStatus.UNAUTHORIZED
 
 
-api.add_resource(User, '/v1/user/<user_id>')
-api.add_resource(UserRegister, '/v1/register')
-api.add_resource(UserLogin, '/v1/login')
-api.add_resource(UserLogout, '/v1/logout')
+from resources.user import User, UserList, UserRegister, ChangePassword
+from resources.role_user import RoleUser
+
+# USER
+api.add_resource(UserList, '/v1/user/')
+api.add_resource(UserRegister, '/v1/user/register/')
+api.add_resource(User, '/v1/user/<user_id>/')
+api.add_resource(ChangePassword, '/v1/user/<user_id>/change-password/')
+api.add_resource(RoleUser, '/v1/user/<user_id>/role/')
+
+# AUTH
+from resources.auth import Login, Logout, TokenRefresh, Validate
+api.add_resource(Login, '/v1/login')
+api.add_resource(Logout, '/v1/logout')
 api.add_resource(TokenRefresh, '/v1/refresh')
-api.add_resource(ChangePassword, '/v1/user/<user_id>/change-password')
 api.add_resource(Validate, '/v1/validate')
 
 
-api.add_resource(Film, '/v1/film')
+# ROLE
+from resources.role import Role
+api.add_resource(Role, '/v1/role/')
 
-# db.init_app(app)
+
 if __name__ == '__main__':
     db.init_app(app)
     app.run(port=5000, debug=True)

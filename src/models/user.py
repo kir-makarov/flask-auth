@@ -1,70 +1,110 @@
-import enum
 import uuid
-
 from db import db
-from sqlalchemy import Enum
 from sqlalchemy.dialects.postgresql import UUID
 from passlib.hash import pbkdf2_sha256 as sha256
+from sqlalchemy import UniqueConstraint
 
 
-class Access(enum.Enum):
-    guest = 0
-    user = 1
-    admin = 2
+class RoleUserModel(db.Model):
 
+    __tablename__ = 'roles_users'
 
-class UserModel(db.Model):
-    __tablename__ = 'users'
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), primary_key=True)
+    role_id = db.Column(UUID(as_uuid=True), db.ForeignKey('roles.id'), primary_key=True)
 
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
-    username = db.Column(db.String())
-    password = db.Column(db.String())
+    __table_args__ = (UniqueConstraint('user_id', 'role_id', name='roles_users'),)
 
-    access = db.Column('value', Enum(Access), default=Access.user)
-
-    def __init__(self, username, password):
-        self.username = username
-        self.password = password
-
-    def __repr__(self):
-        return f'<User {self.username}>'
-
-    def current_user(self, current_user_id):
-        return current_user_id == self.id
-
-    def is_admin(self):
-        return self.access == Access.admin
-
-    def allowed(self, access_level):
-        return self.access.value >= access_level
-
-    def json(self):
-        return {
-            'id': str(self.id),
-            'username': self.username,
-        }
+    def __init__(self, user_id, role_id):
+        self.user_id = user_id
+        self.role_id = role_id
 
     def save_to_db(self):
         db.session.add(self)
         db.session.commit()
 
+    def delete_from_db(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def json(self):
+        return {
+            'user_id': str(self.user_id),
+            'role_id': str(self.role_id)
+        }
+
+
+class RoleModel(db.Model):
+    __tablename__ = 'roles'
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    name = db.Column(db.String(255))
+
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return self.name
+
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
 
     def delete_from_db(self):
         db.session.delete(self)
         db.session.commit()
 
+    def json(self):
+        return {'id': str(self.id), 'name': self.name}
+
+    @classmethod
+    def find_by_name(cls, name: str):
+        return cls.query.filter_by(name=name).first()
+
+    @classmethod
+    def find_all(cls):
+        return cls.query.all()
+
+
+class UserModel(db.Model):
+    __tablename__ = 'users'
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    username = db.Column(db.String(255))
+    password = db.Column(db.String())
+    roles = db.relationship('RoleModel', secondary='roles_users', backref=db.backref('users', lazy='dynamic'))
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
+
+    def delete_from_db(self):
+        db.session.delete(self)
+        db.session.commit()
+
+    def json(self):
+        return {'id': str(self.id),
+                'username': self.username,
+                'roles': [role.json() for role in self.roles]
+                }
+
+    @classmethod
+    def find_all(cls):
+        return cls.query.all()
+
+    @classmethod
+    def find_by_id(cls, user_id: str):
+        return cls.query.filter_by(id=user_id).first()
+
+    @classmethod
+    def find_by_username(cls, username: str):
+        return cls.query.filter_by(username=username).first()
+
     @classmethod
     def update_password(cls, _id, new_password):
         cls.password = new_password
         db.session.commit()
-
-    @classmethod
-    def find_by_username(cls, username):
-        return cls.query.filter_by(username=username).first()
-
-    @classmethod
-    def find_by_id(cls, _id):
-        return cls.query.filter_by(id=_id).first()
 
     @staticmethod
     def generate_hash(password):
