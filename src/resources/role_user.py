@@ -43,7 +43,6 @@ class RoleUser(Resource):
                 message=const.MSG_ROLE_ALREADY_USER,
             ), HTTPStatus.BAD_REQUEST
 
-    # TODO
     @validate()
     def delete(self, user_id, body: RoleRequestModel):
         user = UserModel.find_by_id(user_id)

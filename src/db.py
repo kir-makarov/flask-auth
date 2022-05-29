@@ -1,4 +1,3 @@
-from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from core.config import settings
 import redis

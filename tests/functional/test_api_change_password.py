@@ -65,7 +65,7 @@ def test_api_change_password_wrong_pass(client):
               "new_password": "test_new"})
 
     result = response.json
-    assert result == {"message": "User not found or incorrect password", "status": http.HTTPStatus.NOT_FOUND}
+    assert result == {"message": "User not found or incorrect password"}
 
 
 def test_api_change_password_for_wrong_user(client):
@@ -99,4 +99,4 @@ def test_api_change_password_for_wrong_user(client):
               "new_password": "test_new"})
 
     result = response.json
-    assert result == {"message": "User not found or incorrect password", "status": http.HTTPStatus.NOT_FOUND}
+    assert result == {"message": "User not found or incorrect password"}
