@@ -1,14 +1,14 @@
 import os
 from datetime import timedelta
-
 from pydantic import BaseSettings
 
 
 class Base(BaseSettings):
     class Config:
-        env_file = '../.env'
+        env_file = '.env'
         env_file_encoding = 'utf-8'
         arbitrary_types_allowed = True
+
 
 class RedisSettings(Base):
     host: str = os.getenv('REDIS_HOST', 'localhost')
@@ -18,6 +18,7 @@ class RedisSettings(Base):
 
     class Config:
         env_prefix = 'redis_'
+
 
 class PostgresSettings(Base):
 

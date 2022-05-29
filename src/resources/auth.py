@@ -92,17 +92,18 @@ class Login(Resource):
             auth_service.delete_user_refresh_token(user.id, request.user_agent)
             auth_service.save_refresh_token_in_redis(user.id, request.user_agent, refresh_token)
 
-        if request:
             user_agent = request.user_agent.string
             ip_address = request.remote_addr
             platform = request.user_agent.platform
             browser = request.user_agent.browser
 
-            history = AuthHistoryModel(user_id=user.id,
-                                  ip_address=ip_address,
-                                  user_agent=user_agent,
-                                  platform=platform,
-                                  browser=browser,)
+            history = AuthHistoryModel(
+                user_id=user.id,
+                ip_address=ip_address,
+                user_agent=user_agent,
+                platform=platform,
+                browser=browser
+            )
 
             history.save_to_db()
 
