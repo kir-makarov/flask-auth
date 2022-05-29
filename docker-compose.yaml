@@ -14,6 +14,11 @@ services:
       - backend
     env_file:
       - ./src/.env
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:6.2.6
@@ -47,8 +52,8 @@ services:
     expose:
       - 5000
     depends_on:
-      - redis
-      - postgres
+      postgres:
+        condition: service_healthy
     env_file:
       - ./src/.env
     networks:
