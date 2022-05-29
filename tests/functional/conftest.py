@@ -15,7 +15,7 @@ def client():
     api = Api(app)
     jwt = JWTManager(app)
 
-    test_db_uri = "postgresql://admin:admin@127.0.0.1:5432/flask-auth-test"
+    test_db_uri = "postgresql://admin:admin@postgres:5432/flask-auth-test"
 
     app.config['SQLALCHEMY_DATABASE_URI'] = test_db_uri
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
