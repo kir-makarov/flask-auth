@@ -3,6 +3,7 @@ from flask import jsonify
 from flask_restful import Resource, ResponseBase
 from models.user import UserModel, AuthHistoryModel
 from core import const
+from services.permissions import user_must_match
 from flask_pydantic import validate
 from pydantic import BaseModel
 from flask_jwt_extended import get_jwt_identity, jwt_required
@@ -119,6 +120,7 @@ class ChangePassword(Resource):
 
 class AuthHistory(Resource):
     @jwt_required()
+    @user_must_match
     def get(self, user_id):
         user_id = get_jwt_identity()
         user_data = AuthHistoryModel.query.filter_by(user_id=user_id)
