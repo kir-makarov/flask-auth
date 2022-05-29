@@ -92,7 +92,7 @@ def revoked_token_callback(jwt_header, jwt_payload: dict):
 
 
 from resources.auth import TokenRefresh, Validate, Login, Logout
-from resources.user import User, UserList, UserRegister, ChangePassword
+from resources.user import User, UserList, UserRegister, ChangePassword, AuthHistory
 from resources.role_user import RoleUser
 from resources.role import Role
 
@@ -103,6 +103,7 @@ api.add_resource(User, '/v1/user/<user_id>')
 api.add_resource(UserRegister, '/v1/register')
 api.add_resource(ChangePassword, '/v1/user/<user_id>/change-password')
 api.add_resource(RoleUser, '/v1/user/<user_id>/role/')
+api.add_resource(AuthHistory, '/v1/user/<user_id>/history')
 
 # AUTH
 api.add_resource(Login, '/v1/login/')

@@ -11,7 +11,7 @@ from flask_jwt_extended import (
 
 from core import const
 from core.config import settings
-from models.user import UserModel, AuthHistory
+from models.user import UserModel, AuthHistoryModel
 from db import jwt_redis
 from services.auth import auth_service
 
@@ -98,7 +98,7 @@ class Login(Resource):
             platform = request.user_agent.platform
             browser = request.user_agent.browser
 
-            history = AuthHistory(user_id=user.id,
+            history = AuthHistoryModel(user_id=user.id,
                                   ip_address=ip_address,
                                   user_agent=user_agent,
                                   platform=platform,
