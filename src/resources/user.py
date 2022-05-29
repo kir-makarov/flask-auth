@@ -1,13 +1,16 @@
 from http import HTTPStatus
+from flask import jsonify
 from flask_restful import Resource, ResponseBase
-from models.user import UserModel
+from models.user import UserModel, AuthHistoryModel
 from core import const
 from flask_pydantic import validate
 from pydantic import BaseModel
+from flask_jwt_extended import get_jwt_identity, jwt_required
 
 
 class ResponseModel(BaseModel):
     message: str
+
 
 class UserList(Resource):
     @staticmethod
@@ -112,3 +115,19 @@ class ChangePassword(Resource):
         return ResponseModel(
             message=const.MSG_USER_NOT_FOUND_OR_INCORRECT_PASSWORD,
         ), HTTPStatus.NOT_FOUND
+
+
+class AuthHistory(Resource):
+    @jwt_required()
+    def get(self, user_id):
+        user_id = get_jwt_identity()
+        user_data = AuthHistoryModel.query.filter_by(user_id=user_id)
+        history = [{
+                'date': usr.date,
+                'ip_address': usr.ip_address,
+                'user_agent': usr.user_agent,
+                'browser': usr.browser,
+                'platform': usr.platform,
+                } for usr in user_data
+        ]
+        return jsonify(history)

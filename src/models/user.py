@@ -118,9 +118,9 @@ class UserModel(db.Model):
         return sha256.verify(password, hash)
 
 
-class AuthHistory(db.Model):
+class AuthHistoryModel(db.Model):
     __tablename__ = 'auth_history'
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4(), unique=True, nullable=False)
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("users.id"))
     ip_address = db.Column(db.String(length=50))
     user_agent = db.Column(db.Text(), nullable=False)
