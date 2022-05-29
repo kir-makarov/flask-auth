@@ -11,7 +11,7 @@ from flask_jwt_extended import (
 
 from core import const
 from core.config import settings
-from models.user import UserModel
+from models.user import UserModel, AuthHistory
 from db import jwt_redis
 from services.auth import auth_service
 
@@ -91,6 +91,21 @@ class Login(Resource):
             refresh_token = create_refresh_token(user.id)
             auth_service.delete_user_refresh_token(user.id, request.user_agent)
             auth_service.save_refresh_token_in_redis(user.id, request.user_agent, refresh_token)
+
+        if request:
+            user_agent = request.user_agent.string
+            ip_address = request.remote_addr
+            platform = request.user_agent.platform
+            browser = request.user_agent.browser
+
+            history = AuthHistory(user_id=user.id,
+                                  ip_address=ip_address,
+                                  user_agent=user_agent,
+                                  platform=platform,
+                                  browser=browser,)
+
+            history.save_to_db()
+
             return ResponseToken(
                 access_token=access_token,
                 refresh_token=refresh_token,

@@ -6,7 +6,6 @@ from sqlalchemy import UniqueConstraint
 
 
 class RoleUserModel(db.Model):
-
     __tablename__ = 'roles_users'
 
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), primary_key=True)
@@ -117,3 +116,18 @@ class UserModel(db.Model):
     @staticmethod
     def verify_hash(password, hash):
         return sha256.verify(password, hash)
+
+
+class AuthHistory(db.Model):
+    __tablename__ = 'auth_history'
+    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4(), unique=True, nullable=False)
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("users.id"))
+    ip_address = db.Column(db.String(length=50))
+    user_agent = db.Column(db.Text(), nullable=False)
+    platform = db.Column(db.Text)
+    browser = db.Column(db.Text)
+    date = db.Column(db.DateTime, default=db.func.now())
+
+    def save_to_db(self):
+        db.session.add(self)
+        db.session.commit()
