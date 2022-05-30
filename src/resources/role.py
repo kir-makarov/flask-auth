@@ -25,9 +25,9 @@ class Role(Resource):
         if RoleModel.find_by_name(body.role):
             return ResponseModel(
                 message='Role with that name already exists',
-                status=HTTPStatus.BAD_REQUEST
-            )
+            ), HTTPStatus.BAD_REQUEST
         role = RoleModel(name=body.role)
+
         role.save_to_db()
         return ResponseModel(
             message='Role created successfully',
