@@ -74,4 +74,4 @@ def test_api_refresh_wrong_token(client):
         headers={'Authorization': refresh_header_body}
     )
 
-    assert response.status_code == http.HTTPStatus.UNPROCESSABLE_ENTITY
+    assert response.status_code == http.HTTPStatus.UNAUTHORIZED

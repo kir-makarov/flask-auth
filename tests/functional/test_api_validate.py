@@ -60,6 +60,6 @@ def test_api_validate_after_logout(client):
         path=f"/v1/validate",
         headers={'Authorization': access_header_body})
 
-    assert response.status_code == http.HTTPStatus.OK
+    assert response.status_code == http.HTTPStatus.UNAUTHORIZED
     result = response.json
-    assert result == {"verified": "false"}
+    assert result == {"description": "The token has been revoked.", "error": "token_revoked"}
