@@ -5,7 +5,6 @@ from flask_pydantic import validate
 from pydantic import BaseModel
 
 
-
 class RoleRequestModel(BaseModel):
     role: str
 
@@ -46,4 +45,3 @@ class Role(Resource):
         return ResponseModel(
             message='Role created successfully',
         ), HTTPStatus.OK
-

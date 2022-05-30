@@ -1,8 +1,8 @@
+from http import HTTPStatus
 from functools import wraps
 from flask_jwt_extended import get_jwt_identity, jwt_required
-from flask import jsonify
 from models.user import UserModel
-from http import HTTPStatus
+
 
 
 def user_must_match(fn):

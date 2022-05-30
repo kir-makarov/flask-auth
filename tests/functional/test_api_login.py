@@ -38,7 +38,7 @@ def test_api_login_wrong_password(client):
         },
     )
 
-    assert response.status_code== http.HTTPStatus.CREATED
+    assert response.status_code == http.HTTPStatus.CREATED
 
     response = test_client.post(
         path="/v1/login",
@@ -78,5 +78,3 @@ def test_api_login_unknown_user(client):
 
     result = response.json
     assert result == {"message": "Invalid credentials"}
-
-
