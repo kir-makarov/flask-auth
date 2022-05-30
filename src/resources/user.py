@@ -22,6 +22,26 @@ class UserList(Resource):
 class User(Resource):
     @classmethod
     def get(cls, user_id):
+        """
+            User page method for users
+            ---
+            tags:
+              - user
+            responses:
+              200:
+                description: Success user's page
+                schema:
+                  properties:
+                    id:
+                      type: string
+                      description: Response message
+                    username:
+                      type: string
+                      description: Response message
+                    roles:
+                      type: string
+                      description: Response message
+        """
         user = UserModel.find_by_id(user_id)
         if not user:
             return {"message": const.MSG_USER_NOT_FOUND}, HTTPStatus.NOT_FOUND
@@ -37,32 +57,20 @@ class UserRegister(Resource):
     @validate()
     def post(self, body: UserRequestModel):
         """
-           Refresh token method for users
-           ---
-           tags:
-             - user
-           responses:
-             200:
-               description: Validate user's roles
-               schema:
-                 properties:
-                   verified:
-                     type: boolean
-                     description: Response status
-                   role:
-                     type: string
-                     description: Response data
-             401:
-               description: Authorization error response
-               schema:
-                 properties:
-                   description:
-                     type: string
-                     description: Response status
-                   error:
-                     type: string
-                     description: Response data
-       """
+            User register method for users
+            ---
+            tags:
+              - user
+            responses:
+              200:
+                description: Success user's register
+                schema:
+                  properties:
+                    message:
+                      type: string
+                      description: Response message
+
+        """
         if UserModel.find_by_username(body.username):
             return {"message": const.MSG_USER_ALREADY_EXIST}, HTTPStatus.BAD_REQUEST
         user = UserModel(body.username, UserModel.generate_hash(body.password))
@@ -81,7 +89,7 @@ class ChangePassword(Resource):
     @validate()
     def post(self, user_id, body: ChangePasswordRequest):
         """
-           Refresh token method for users
+           Change password method for users
            ---
            tags:
              - user
@@ -90,20 +98,7 @@ class ChangePassword(Resource):
                description: Validate user's roles
                schema:
                  properties:
-                   verified:
-                     type: boolean
-                     description: Response status
-                   role:
-                     type: string
-                     description: Response data
-             401:
-               description: Authorization error response
-               schema:
-                 properties:
-                   description:
-                     type: string
-                     description: Response status
-                   error:
+                   message:
                      type: string
                      description: Response data
        """
@@ -122,6 +117,33 @@ class AuthHistory(Resource):
     @jwt_required()
     @user_must_match
     def get(self, user_id):
+        """
+                   Auth History method for users
+                   ---
+                   tags:
+                     - user
+                   responses:
+                     200:
+                       description: Validate user's roles
+                       schema:
+                         properties:
+                           date:
+                             type: string
+                             description: Response data
+                           ip_address:
+                             type: string
+                             description: Response data
+                           user_agent:
+                             type: string
+                             description: Response data
+                           browser:
+                             type: string
+                             description: Response data
+                           platform:
+                             type: string
+                             description: Response data
+               """
+
         page = request.args.get('page', 1, type=int)
         per_page = request.args.get('per_page', 5, type=int)
 
