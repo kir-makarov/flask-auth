@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from flask import jsonify
+from flask import jsonify, request
 from flask_restful import Resource, ResponseBase
 from models.user import UserModel, AuthHistoryModel
 from core import const
@@ -122,14 +122,17 @@ class AuthHistory(Resource):
     @jwt_required()
     @user_must_match
     def get(self, user_id):
+        page = request.args.get('page', 1, type=int)
+        per_page = request.args.get('per_page', 5, type=int)
+
         user_id = get_jwt_identity()
-        user_data = AuthHistoryModel.query.filter_by(user_id=user_id)
+        user_data = AuthHistoryModel.query.filter_by(user_id=user_id).paginate(page=page, per_page=per_page)
         history = [{
                 'date': usr.date,
                 'ip_address': usr.ip_address,
                 'user_agent': usr.user_agent,
                 'browser': usr.browser,
                 'platform': usr.platform,
-                } for usr in user_data
+                } for usr in user_data.items
         ]
         return jsonify(history)
