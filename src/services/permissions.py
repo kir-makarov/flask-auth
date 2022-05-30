@@ -19,6 +19,8 @@ def user_must_match(fn):
 ACCESS = dict(guest=1, user=2, editor=4, admin=8)
 
 def get_access_level(roles_names_list: list):
+    if not roles_names_list:
+        return 0
     level = [ACCESS.get(role, 0) for role in roles_names_list]
     return max(level)
 
