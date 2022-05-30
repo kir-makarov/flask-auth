@@ -22,6 +22,20 @@ class Role(Resource):
 
     @validate()
     def post(self, body: RoleRequestModel):
+        """
+                   Role create method for users
+                   ---
+                   tags:
+                     - user
+                   responses:
+                     200:
+                       description: Validate user's roles
+                       schema:
+                         properties:
+                           message:
+                             type: string
+                             description: Response data
+               """
         if RoleModel.find_by_name(body.role):
             return ResponseModel(
                 message='Role with that name already exists',

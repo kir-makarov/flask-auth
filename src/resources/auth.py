@@ -207,7 +207,7 @@ class Validate(Resource):
     @jwt_required(optional=True)
     def post(self):
         """
-            Refresh token method for users
+            Validate method for users
             ---
             tags:
               - user
