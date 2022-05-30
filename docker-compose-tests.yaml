@@ -7,13 +7,15 @@ services:
     image: postgres:13.0-alpine
     container_name: postgres
     volumes:
-      - ./.data:/var/lib/postgresql/data
+      - ./.data-tests:/var/lib/postgresql/data
     expose:
       - 5432
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=flask-auth-test
     networks:
       - backend
-    env_file:
-      - ./src/.env
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U postgres" ]
       interval: 5s
@@ -32,23 +34,11 @@ services:
     env_file:
       - ./src/.env
 
-  nginx:
-    build:
-      context: ./nginx
-      dockerfile: Dockerfile
-    container_name: nginx
-    ports:
-      - 80:80
-    depends_on:
-      - flask-auth
-    networks:
-      - backend
-
   flask-auth:
     build:
       context: .
-      dockerfile: Dockerfile
-    container_name: flask-auth
+      dockerfile: DockerfileForTests
+    container_name: flask-auth-test
     expose:
       - 5000
     depends_on:
