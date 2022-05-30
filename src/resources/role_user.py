@@ -6,6 +6,7 @@ from models.user import UserModel, RoleModel, RoleUserModel
 from core import const
 from flask_pydantic import validate
 from pydantic import BaseModel
+from db import db
 
 
 class ResponseModel(BaseModel):
@@ -18,43 +19,30 @@ class RoleUser(Resource):
     def post(self, user_id, body: RoleRequestModel):
         user = UserModel.find_by_id(user_id)
         if not user:
-            return ResponseModel(
-                message=const.MSG_USER_ALREADY_EXIST,
-                status=HTTPStatus.BAD_REQUEST
-            )
-
+            return ResponseModel(message=const.MSG_USER_ALREADY_EXIST), HTTPStatus.BAD_REQUEST
         role = RoleModel.find_by_name(body.role)
         if not role:
-            return ResponseModel(
-                message=const.MSG_ROLE_ALREADY_EXIST,
-            ), HTTPStatus.BAD_REQUEST
-
+            return ResponseModel(message=const.MSG_ROLE_ALREADY_EXIST), HTTPStatus.BAD_REQUEST
         try:
-            role_user = RoleUserModel(
-                user_id=user.id,
-                role_id=role.id
-            )
-            role_user.save_to_db()
-            return ResponseModel(
-                message=const.MSG_ROLE_SET_USER,
-            ), HTTPStatus.OK
+            user.roles.append(role)
+            db.session.commit()
+            return ResponseModel(message=const.MSG_ROLE_SET_USER), HTTPStatus.BAD_REQUEST
         except IntegrityError:
-            return ResponseModel(
-                message=const.MSG_ROLE_ALREADY_USER,
-            ), HTTPStatus.BAD_REQUEST
+            return ResponseModel(message=const.MSG_ROLE_ALREADY_EXIST), HTTPStatus.BAD_REQUEST
 
     @validate()
     def delete(self, user_id, body: RoleRequestModel):
         user = UserModel.find_by_id(user_id)
         if not user:
-            return ResponseModel(
-                message=const.MSG_USER_ALREADY_EXIST,
-                status=HTTPStatus.BAD_REQUEST
-            )
+            return ResponseModel(message=const.MSG_USER_ALREADY_EXIST), HTTPStatus.BAD_REQUEST
 
         role = RoleModel.find_by_name(body.role)
-        user.delete_role(role)
-        return ResponseModel(
-            message=const.MSG_ROLE_UNSET_USER,
-            status=HTTPStatus.OK
-        )
+        if not role:
+            return ResponseModel(message=const.MSG_ROLE_ALREADY_EXIST), HTTPStatus.BAD_REQUEST
+
+        try:
+            user.roles.remove(role)
+            db.session.commit()
+            return ResponseModel(message=const.MSG_ROLE_UNSET_USER), HTTPStatus.BAD_REQUEST
+        except ValueError:
+            return ResponseModel(message=const.MSG_ROLE_ALREADY_USER), HTTPStatus.BAD_REQUEST
