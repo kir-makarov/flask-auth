@@ -1,6 +1,8 @@
 from flask_sqlalchemy import SQLAlchemy
-from core.config import settings
 import redis
+
+from core.config import settings
+
 
 db = SQLAlchemy()
 

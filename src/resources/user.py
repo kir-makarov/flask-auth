@@ -1,12 +1,13 @@
 from http import HTTPStatus
 from flask import jsonify, request
-from flask_restful import Resource, ResponseBase
-from models.user import UserModel, AuthHistoryModel
-from core import const
-from services.permissions import user_must_match
+from flask_restful import Resource
 from flask_pydantic import validate
 from pydantic import BaseModel
 from flask_jwt_extended import get_jwt_identity, jwt_required
+
+from models.user import UserModel, AuthHistoryModel
+from core import const
+from services.permissions import user_must_match
 
 
 class ResponseModel(BaseModel):

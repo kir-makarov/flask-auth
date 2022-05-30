@@ -9,6 +9,11 @@ from flask_jwt_extended import (
     get_jwt,
 )
 
+from flask_pydantic import validate
+from pydantic import BaseModel
+from http import HTTPStatus
+from flask_restful import request, Resource
+
 from core import const
 from core.config import settings
 from models.user import UserModel, AuthHistoryModel
@@ -16,10 +21,6 @@ from db import jwt_redis
 from services.auth import auth_service
 
 from resources.user import UserRequestModel
-from flask_pydantic import validate
-from pydantic import BaseModel
-from http import HTTPStatus
-from flask_restful import request, Resource
 
 
 class ResponseToken(BaseModel):
@@ -29,6 +30,7 @@ class ResponseToken(BaseModel):
 
 
 ACCESS = dict(guest=1, user=2, editor=4, admin=8)
+
 
 def get_access_level(roles_names_list: list):
     level = [ACCESS.get(role, 0) for role in roles_names_list]
@@ -99,10 +101,10 @@ class Login(Resource):
                 browser = request.user_agent.browser
 
                 history = AuthHistoryModel(user_id=user.id,
-                                      ip_address=ip_address,
-                                      user_agent=user_agent,
-                                      platform=platform,
-                                      browser=browser,)
+                                           ip_address=ip_address,
+                                           user_agent=user_agent,
+                                           platform=platform,
+                                           browser=browser, )
 
                 history.save_to_db()
 

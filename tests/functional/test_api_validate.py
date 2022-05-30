@@ -23,7 +23,7 @@ def test_api_validate_ok(client):
     access_header_body = f"Bearer {access_token}"
 
     response = test_client.post(
-        path=f"/v1/validate",
+        path="/v1/validate",
         headers={'Authorization': access_header_body})
 
     assert response.status_code == http.HTTPStatus.OK
@@ -53,11 +53,11 @@ def test_api_validate_after_logout(client):
     access_header_body = f"Bearer {access_token}"
 
     test_client.post(
-        path=f"/v1/logout",
+        path="/v1/logout",
         headers={'Authorization': access_header_body})
 
     response = test_client.post(
-        path=f"/v1/validate",
+        path="/v1/validate",
         headers={'Authorization': access_header_body})
 
     assert response.status_code == http.HTTPStatus.UNAUTHORIZED

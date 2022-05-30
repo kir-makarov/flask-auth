@@ -1,6 +1,8 @@
-from db import db
 from uuid import uuid4
+
 from sqlalchemy.dialects.postgresql import UUID
+
+from db import db
 
 
 class FilmModel(db.Model):
@@ -12,10 +14,8 @@ class FilmModel(db.Model):
     def __init__(self, name):
         self.name = name
 
-
     def __repr__(self):
         return f'<User {self.name}>'
-
 
     def json(self):
         return {

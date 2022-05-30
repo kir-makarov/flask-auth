@@ -2,7 +2,7 @@ from resources.role import RoleRequestModel
 from sqlalchemy.exc import IntegrityError
 from http import HTTPStatus
 from flask_restful import Resource
-from models.user import UserModel, RoleModel, RoleUserModel
+from models.user import UserModel, RoleModel
 from core import const
 from flask_pydantic import validate
 from pydantic import BaseModel

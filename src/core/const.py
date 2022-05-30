@@ -14,12 +14,9 @@ MSG_ROLE_SET_USER = "user set role successfully"
 MSG_ROLE_ALREADY_USER = "role has already been assigned"
 MSG_ROLE_UNSET_USER = "user unset role successfully"
 
-
 MSG_UNSUFFICIENT_CREDENTIALS = "insufficient credentials"
 MSG_PASSWORD_CHANGED_SUCCESSFULLY = "password changed successfully"
 MSG_USER_NOT_FOUND_OR_INCORRECT_PASSWORD = "User not found or incorrect password"
 MSG_INVALID_CREDENTIALS = "Invalid credentials"
 MSG_TOKEN_ALREADY_REVOKED = "Token already revoked"
 MSG_INVALID_TOKEN = "Invalid token"
-
-
