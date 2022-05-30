@@ -7,7 +7,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from models.user import UserModel, AuthHistoryModel
 from core import const
-from services.permissions import user_must_match
+from services.permissions import user_must_match, check_access_level
 
 
 class ResponseModel(BaseModel):
@@ -15,13 +15,17 @@ class ResponseModel(BaseModel):
 
 
 class UserList(Resource):
+
     @staticmethod
+    @check_access_level(8)
     def get():
         return {'users': [x.json() for x in UserModel.find_all()]}
 
 
 class User(Resource):
+
     @classmethod
+    @user_must_match
     def get(cls, user_id):
         """
             User page method for users
@@ -87,7 +91,9 @@ class ChangePasswordRequest(BaseModel):
 
 
 class ChangePassword(Resource):
+
     @validate()
+    @user_must_match
     def post(self, user_id, body: ChangePasswordRequest):
         """
            Change password method for users

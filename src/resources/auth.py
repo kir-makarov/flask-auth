@@ -1,4 +1,3 @@
-import enum
 import http
 from flask import jsonify
 from flask_jwt_extended import (
@@ -27,14 +26,6 @@ class ResponseToken(BaseModel):
     access_token: str
     refresh_token: str
     user_id: str
-
-
-ACCESS = dict(guest=1, user=2, editor=4, admin=8)
-
-
-def get_access_level(roles_names_list: list):
-    level = [ACCESS.get(role, 0) for role in roles_names_list]
-    return max(level)
 
 
 class Login(Resource):

@@ -18,18 +18,18 @@ class RoleUser(Resource):
     @validate()
     def post(self, user_id, body: RoleRequestModel):
         """
-                   СRUD Role method for users
-                   ---
-                   tags:
-                     - user
-                   responses:
-                     200:
-                       description: Validate user's roles
-                       schema:
-                         properties:
-                           message:
-                             type: string
-                             description: Response data
+        СRUD Role method for users
+        ---
+        tags:
+            - user
+        responses:
+            200:
+            description: Validate user's roles
+            schema:
+                properties:
+                message:
+                    type: string
+                    description: Response data
                """
         user = UserModel.find_by_id(user_id)
         if not user:
@@ -47,18 +47,18 @@ class RoleUser(Resource):
     @validate()
     def delete(self, user_id, body: RoleRequestModel):
         """
-                   CRUD Role method for users
-                   ---
-                   tags:
-                     - user
-                   responses:
-                     200:
-                       description: Validate user's roles
-                       schema:
-                         properties:
-                           message:
-                             type: string
-                             description: Response data
+        CRUD Role method for users
+        ---
+        tags:
+            - user
+        responses:
+            200:
+            description: Validate user's roles
+            schema:
+                properties:
+                message:
+                    type: string
+                    description: Response data
                """
         user = UserModel.find_by_id(user_id)
         if not user:

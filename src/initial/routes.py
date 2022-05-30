@@ -12,8 +12,8 @@ def initialize_routes(app):
     api.add_resource(User, '/v1/user/<user_id>')
     api.add_resource(UserRegister, '/v1/register')
     api.add_resource(ChangePassword, '/v1/user/<user_id>/change-password')
-    api.add_resource(RoleUser, '/v1/user/<user_id>/role/')
-    api.add_resource(AuthHistory, '/v1/user/<user_id>/history/')
+    api.add_resource(RoleUser, '/v1/user/<user_id>/role')
+    api.add_resource(AuthHistory, '/v1/user/<user_id>/history')
     # AUTH
     api.add_resource(Login, '/v1/login')
     api.add_resource(Logout, '/v1/logout')
