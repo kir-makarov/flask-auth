@@ -7,6 +7,12 @@ from flask_jwt_extended import JWTManager
 from db import jwt_redis
 from core.config import settings
 
+from resources.auth import TokenRefresh, Validate, Login, Logout
+from resources.user import User, UserList, UserRegister, ChangePassword, AuthHistory
+from resources.role_user import RoleUser
+from resources.role import Role
+
+
 app = Flask(__name__)
 
 app.config["JWT_SECRET_KEY"] = settings.JWT_SECRET_KEY
@@ -85,10 +91,6 @@ def revoked_token_callback(jwt_header, jwt_payload: dict):
     }), http.HTTPStatus.UNAUTHORIZED
 
 
-from resources.auth import TokenRefresh, Validate, Login, Logout
-from resources.user import User, UserList, UserRegister, ChangePassword, AuthHistory
-from resources.role_user import RoleUser
-from resources.role import Role
 
 # USER
 api.add_resource(UserList, '/v1/user/')
