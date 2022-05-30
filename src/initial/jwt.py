@@ -35,13 +35,6 @@ def initialize_jwt(app):
             'error': 'invalid_token'
         }), http.HTTPStatus.UNAUTHORIZED
 
-    @jwt.user_lookup_loader
-    def invalid_user_lookup_loader(jwt_header, jwt_payload: dict):
-        return jsonify({
-            'description': 'Signature verification failed.',
-            'error': 'invalid_token'
-        }), http.HTTPStatus.UNAUTHORIZED
-
     @jwt.unauthorized_loader
     def missing_token_callback(error):
         return jsonify({

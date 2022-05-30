@@ -1,8 +1,19 @@
-from resources.auth import TokenRefresh, Validate, Login, Logout
-from resources.user import User, UserList, UserRegister, ChangePassword, AuthHistory
 from resources.role_user import RoleUser
 from resources.role import Role
 from flask_restful import Api
+from resources.user import (
+    User,
+    UserList,
+    UserRegister,
+    ChangePassword,
+    AuthHistory
+)
+from resources.auth import (
+    TokenRefresh,
+    Validate,
+    Login,
+    Logout
+)
 
 
 def initialize_routes(app):

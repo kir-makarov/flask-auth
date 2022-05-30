@@ -28,6 +28,7 @@ class PostgresSettings(Base):
     user: str = os.getenv('POSTGRES_USER', 'admin')
     password: str = os.getenv('POSTGRES_USER', 'admin')
     uri = f"postgresql://{user}:{password}@{host}:{port}/{db}"
+
     class Config:
         env_prefix = 'postgres_'
 
@@ -44,5 +45,6 @@ class Settings(Base):
 
     postgres: PostgresSettings = PostgresSettings()
     redis: RedisSettings = RedisSettings()
+
 
 settings = Settings()

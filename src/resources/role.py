@@ -1,9 +1,10 @@
 from http import HTTPStatus
-from flask_restful import Resource, reqparse
-from models.user import UserModel, RoleModel
+from flask_restful import Resource
+from models.user import RoleModel
 from flask_pydantic import validate
 from pydantic import BaseModel
 from services.permissions import check_access_level
+
 
 class RoleRequestModel(BaseModel):
     role: str

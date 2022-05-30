@@ -8,10 +8,14 @@ from sqlalchemy import UniqueConstraint
 class RoleUserModel(db.Model):
     __tablename__ = 'roles_users'
 
-    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey('users.id'), primary_key=True)
-    role_id = db.Column(UUID(as_uuid=True), db.ForeignKey('roles.id'), primary_key=True)
+    user_id = db.Column(
+        UUID(as_uuid=True), db.ForeignKey('users.id'), primary_key=True)
+    role_id = db.Column(
+        UUID(as_uuid=True), db.ForeignKey('roles.id'), primary_key=True)
 
-    __table_args__ = (UniqueConstraint('user_id', 'role_id', name='roles_users_ct'),)
+    __table_args__ = (
+        UniqueConstraint('user_id', 'role_id', name='roles_users_ct'),
+    )
 
     def __init__(self, user_id, role_id):
         self.user_id = user_id
@@ -34,7 +38,13 @@ class RoleUserModel(db.Model):
 
 class RoleModel(db.Model):
     __tablename__ = 'roles'
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    id = db.Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        unique=True,
+        nullable=False
+    )
     name = db.Column(db.String(255))
 
     def __init__(self, name):
@@ -65,10 +75,20 @@ class RoleModel(db.Model):
 
 class UserModel(db.Model):
     __tablename__ = 'users'
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    id = db.Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        unique=True,
+        nullable=False
+    )
     username = db.Column(db.String(255))
     password = db.Column(db.String())
-    roles = db.relationship('RoleModel', secondary='roles_users', backref=db.backref('users', lazy='dynamic'))
+    roles = db.relationship(
+        'RoleModel',
+        secondary='roles_users',
+        backref=db.backref('users', lazy='dynamic')
+    )
 
     def __init__(self, username, password):
         self.username = username
@@ -120,7 +140,13 @@ class UserModel(db.Model):
 
 class AuthHistoryModel(db.Model):
     __tablename__ = 'auth_history'
-    id = db.Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, unique=True, nullable=False)
+    id = db.Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        unique=True,
+        nullable=False
+    )
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("users.id"))
     ip_address = db.Column(db.String(length=50))
     user_agent = db.Column(db.Text(), nullable=False)

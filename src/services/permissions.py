@@ -4,7 +4,6 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 from models.user import UserModel
 
 
-
 def user_must_match(fn):
     @wraps(fn)
     @jwt_required(optional=True)
@@ -17,6 +16,7 @@ def user_must_match(fn):
 
 
 ACCESS = dict(guest=1, user=2, editor=4, admin=8)
+
 
 def get_access_level(roles_names_list: list):
     if not roles_names_list:
