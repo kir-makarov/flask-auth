@@ -1,11 +1,13 @@
-from resources.role import RoleRequestModel
-from sqlalchemy.exc import IntegrityError
 from http import HTTPStatus
+
+from pydantic import BaseModel
+from sqlalchemy.exc import IntegrityError
 from flask_restful import Resource
+from flask_pydantic import validate
+
 from models.user import UserModel, RoleModel
 from core import const
-from flask_pydantic import validate
-from pydantic import BaseModel
+from resources.role import RoleRequestModel
 from db import db
 
 
@@ -82,7 +84,7 @@ class RoleUser(Resource):
             db.session.commit()
             return ResponseModel(
                 message=const.MSG_ROLE_UNSET_USER
-            ), HTTPStatus.BAD_REQUEST
+            ), HTTPStatus.OK
         except ValueError:
             return ResponseModel(
                 message=const.MSG_ROLE_ALREADY_USER

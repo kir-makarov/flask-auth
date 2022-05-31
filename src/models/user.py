@@ -1,9 +1,10 @@
 import uuid
-from db import db
+
 from sqlalchemy.dialects.postgresql import UUID
 from passlib.hash import pbkdf2_sha256 as sha256
 from sqlalchemy import UniqueConstraint
 
+from db import db
 
 class RoleUserModel(db.Model):
     __tablename__ = 'roles_users'
