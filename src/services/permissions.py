@@ -17,7 +17,10 @@ def user_must_match(fn):
     return decorator
 
 
-ACCESS = dict(guest=1, user=2, editor=4, admin=8)
+ACCESS = dict(guest=const.ACCESS_GUEST,
+              user=const.ACCESS_USER,
+              editor=const.ACCESS_EDITOR,
+              admin=const.ACCESS_ADMIN)
 
 
 def get_access_level(roles_names_list: list):
