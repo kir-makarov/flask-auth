@@ -1,6 +1,8 @@
 from http import HTTPStatus
 from functools import wraps
 from flask_jwt_extended import get_jwt_identity, jwt_required
+
+from core import const
 from models.user import UserModel
 
 
@@ -10,7 +12,7 @@ def user_must_match(fn):
     def decorator(*args, user_id=None, **kwargs):
         current_user_id = get_jwt_identity()
         if user_id is not None and user_id != current_user_id:
-            return {"message": "Access closed"}, HTTPStatus.NOT_FOUND
+            return {"message": const.MSG_USER_NOT_FOUND_OR_INCORRECT_PASSWORD}, HTTPStatus.NOT_FOUND
         return fn(*args, user_id=user_id, **kwargs)
     return decorator
 
