@@ -9,6 +9,7 @@ from models.user import UserModel, RoleModel
 from core import const
 from resources.role import RoleRequestModel
 from db import db
+from services.permissions import check_access_level
 
 
 class ResponseModel(BaseModel):
@@ -18,6 +19,7 @@ class ResponseModel(BaseModel):
 class RoleUser(Resource):
 
     @validate()
+    @check_access_level(const.ACCESS_ADMIN)
     def post(self, user_id, body: RoleRequestModel):
         """
         СRUD Role method for users
@@ -54,6 +56,7 @@ class RoleUser(Resource):
             ), HTTPStatus.BAD_REQUEST
 
     @validate()
+    @check_access_level(const.ACCESS_ADMIN)
     def delete(self, user_id, body: RoleRequestModel):
         """
         CRUD Role method for users

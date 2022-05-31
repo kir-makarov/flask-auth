@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from flask_restful import Resource
 from flask_pydantic import validate
 
+from core import const
 from models.user import RoleModel
 from services.permissions import check_access_level
 
@@ -19,12 +20,12 @@ class ResponseModel(BaseModel):
 class Role(Resource):
 
     @staticmethod
-    @check_access_level(8)
+    @check_access_level(const.ACCESS_ADMIN)
     def get():
         return {'roles': [x.json() for x in RoleModel.find_all()]}
 
     @validate()
-    @check_access_level(8)
+    @check_access_level(const.ACCESS_ADMIN)
     def post(self, body: RoleRequestModel):
         """
         Role create method for users
