@@ -20,3 +20,4 @@ MSG_USER_NOT_FOUND_OR_INCORRECT_PASSWORD = "User not found or incorrect password
 MSG_INVALID_CREDENTIALS = "Invalid credentials"
 MSG_TOKEN_ALREADY_REVOKED = "Token already revoked"
 MSG_INVALID_TOKEN = "Invalid token"
+MSG_NO_TOKEN = "No token"

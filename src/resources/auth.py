@@ -188,7 +188,7 @@ class TokenRefresh(Resource):
         user_agent = request.headers.get("User-Agent")
         token_from_header = request.headers.get("Authorization")
         if not token_from_header:
-            return {"message": "No token"}, http.HTTPStatus.UNAUTHORIZED
+            return {"message": const.MSG_NO_TOKEN}, http.HTTPStatus.UNAUTHORIZED
 
         token_from_header = token_from_header.removeprefix(const.JWT_PREFIX)
         current_user_id = get_jwt_identity()
@@ -196,9 +196,7 @@ class TokenRefresh(Resource):
             current_user_id, user_agent
         )
         if not token_from_redis or not token_from_header or token_from_header != token_from_redis:
-            return ResponseModel(
-                message=const.MSG_INVALID_TOKEN
-            ), http.HTTPStatus.UNAUTHORIZED
+            return {"message": const.MSG_INVALID_TOKEN}, http.HTTPStatus.UNAUTHORIZED
 
         new_token = create_access_token(identity=current_user_id, fresh=False)
 
