@@ -18,6 +18,7 @@ from core.config import settings
 from models.user import UserModel, AuthHistoryModel
 from db import jwt_redis
 from services.auth import auth_service
+from services.permissions import limiter
 
 from resources.user import UserRequestModel
 
@@ -33,6 +34,8 @@ class ResponseModel(BaseModel):
 
 
 class Login(Resource):
+    decorators = [limiter.limit("1/second", error_message="quota limit exceeded")]
+
     @validate()
     def post(self, body: UserRequestModel):
         """
@@ -118,6 +121,8 @@ class Login(Resource):
 
 
 class Logout(Resource):
+    decorators = [limiter.limit("1/second", error_message="quota limit exceeded")]
+
     @jwt_required()
     def post(self):
         """
@@ -158,6 +163,8 @@ class Logout(Resource):
 
 
 class TokenRefresh(Resource):
+    decorators = [limiter.limit("1/second", error_message="quota limit exceeded")]
+
     @jwt_required(refresh=True)
     def post(self):
         """
