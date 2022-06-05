@@ -1,5 +1,5 @@
 import http
-from flask import jsonify
+from flask import jsonify, url_for
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -12,9 +12,11 @@ from flask_pydantic import validate
 from pydantic import BaseModel
 from http import HTTPStatus
 from flask_restful import request, Resource
+from werkzeug import exceptions
 
 from core import const
 from core.config import settings
+from initial.oauth import oauth
 from models.user import UserModel, AuthHistoryModel
 from db import jwt_redis
 from services.auth import auth_service
@@ -115,6 +117,42 @@ class Login(Resource):
         return ResponseModel(
             message=const.MSG_INVALID_CREDENTIALS
         ), http.HTTPStatus.UNAUTHORIZED
+
+
+class OauthAuth(Resource):
+    def get(self, social: str):
+        """
+            Social network authorization method
+        """
+        client = oauth.create_client(social)
+
+        if not client:
+            raise exceptions.NotFound()
+
+        token = client.authorize_access_token()
+        user_info = token.get("userinfo")
+
+        if not user_info:
+            user_info = client.userinfo()
+
+
+class OauthLogin(Resource):
+    def get(self, social: str):
+        """
+            Social network login method
+        """
+
+        client = oauth.create_client(social)
+
+        if not client:
+            raise exceptions.NotFound()
+
+        redirect_url = url_for("oauthauth", social=social, _external=True)
+
+        try:
+            return client.authorize_redirect(redirect_url)
+        except Exception as e:
+            print(e)
 
 
 class Logout(Resource):

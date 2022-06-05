@@ -12,7 +12,7 @@ from resources.auth import (
     TokenRefresh,
     Validate,
     Login,
-    Logout
+    Logout, OauthLogin, OauthAuth
 )
 
 
@@ -27,6 +27,8 @@ def initialize_routes(app):
     api.add_resource(AuthHistory, '/v1/user/<user_id>/history')
     # AUTH
     api.add_resource(Login, '/v1/login')
+    api.add_resource(OauthLogin, '/v1/login/<social>')
+    api.add_resource(OauthAuth, '/v1/auth/<social>')
     api.add_resource(Logout, '/v1/logout')
     api.add_resource(TokenRefresh, '/v1/refresh')
     api.add_resource(Validate, '/v1/validate')

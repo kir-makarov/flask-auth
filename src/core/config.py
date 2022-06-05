@@ -21,7 +21,6 @@ class RedisSettings(Base):
 
 
 class PostgresSettings(Base):
-
     host: str = os.getenv('POSTGRES_HOST', 'localhost')
     port: str = os.getenv('POSTGRES_PORT', 5432)
     db: str = os.getenv('POSTGRES_DB', 'flask-auth')
@@ -34,7 +33,6 @@ class PostgresSettings(Base):
 
 
 class Settings(Base):
-
     ACCESS_EXPIRES = timedelta(hours=1)
     REFRESH_EXPIRES = timedelta(days=10)
 
@@ -42,6 +40,10 @@ class Settings(Base):
 
     JWT_SECRET_KEY: str = os.getenv('JWT_SECRET_KEY', 'secret_key')
     JWT_ACCESS_TOKEN_EXPIRES: int = os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 3600)
+
+    OAUTH_GOOGLE_CLIENT_ID: str = os.getenv('OAUTH_GOOGLE_CLIENT_ID', "")
+    OAUTH_GOOGLE_CLIENT_SECRET: str = os.getenv('OAUTH_GOOGLE_CLIENT_SECRET', "")
+    OAUTH_GOOGLE_SERVER_METADATA_URL: str = os.getenv('OAUTH_GOOGLE_SERVER_METADATA_URL', "")
 
     postgres: PostgresSettings = PostgresSettings()
     redis: RedisSettings = RedisSettings()
