@@ -30,4 +30,4 @@ ACCESS_ADMIN = 8
 
 # OAUTH SERVICES
 OAUTH_GOOGLE = "google"
-OAUTH_VK = "vk"
+OAUTH_FACEBOOK = "facebook"

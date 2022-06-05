@@ -45,6 +45,10 @@ class Settings(Base):
     OAUTH_GOOGLE_CLIENT_SECRET: str = os.getenv('OAUTH_GOOGLE_CLIENT_SECRET', "")
     OAUTH_GOOGLE_SERVER_METADATA_URL: str = os.getenv('OAUTH_GOOGLE_SERVER_METADATA_URL', "")
 
+    OAUTH_FACEBOOK_CLIENT_ID: str = os.getenv('OAUTH_FACEBOOK_CLIENT_ID', "")
+    OAUTH_FACEBOOK_CLIENT_SECRET: str = os.getenv('OAUTH_FACEBOOK_CLIENT_SECRET', "")
+
+
     postgres: PostgresSettings = PostgresSettings()
     redis: RedisSettings = RedisSettings()
 

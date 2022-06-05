@@ -6,6 +6,8 @@ from sqlalchemy import pool
 from alembic import context
 
 from db import db
+from models.film import FilmModel
+from models.user import RoleUserModel, RoleModel, UserModel, SocialAccountModel, AuthHistoryModel
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
