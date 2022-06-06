@@ -12,6 +12,7 @@ from flask_pydantic import validate
 from pydantic import BaseModel
 from http import HTTPStatus
 from flask_restful import request, Resource
+from user_agents import parse
 
 from core import const
 from core.config import settings
@@ -99,8 +100,16 @@ class Login(Resource):
             if request:
                 user_agent = request.user_agent.string
                 ip_address = request.remote_addr
-                platform = request.user_agent.platform
-                browser = request.user_agent.browser
+                ua = parse(user_agent)
+                browser = ua.get_browser()
+                if ua.is_pc:
+                    platform = 'pc'
+                elif ua.is_mobile:
+                    platform = 'mobile'
+                elif ua.is_tablet:
+                    platform = 'tablet'
+                else:
+                    platform = 'unknown'
 
                 history = AuthHistoryModel(user_id=user.id,
                                            ip_address=ip_address,
