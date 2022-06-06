@@ -19,6 +19,8 @@ def manage(username, password):
     if not role:
         role = RoleModel(name='admin')
         db.add(role)
+        db.commit()
+        db.refresh(role)
     user = db.query(UserModel).filter(UserModel.username == username).first()
     if user:
         click.echo('the name is already taken')
