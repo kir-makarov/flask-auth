@@ -7,11 +7,11 @@ from initial.routes import initialize_routes
 from initial.swagger import initialize_swagger
 
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
-# from core.tracer import configure_tracer
+from core.tracer import configure_tracer
 
-#configure_tracer()
+configure_tracer()
 app = Flask(__name__)
-#FlaskInstrumentor().instrument_app(app)
+FlaskInstrumentor().instrument_app(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = settings.postgres.uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -19,11 +19,11 @@ app.config["JWT_SECRET_KEY"] = settings.JWT_SECRET_KEY
 app.config["JWT_ACCESS_TOKEN_EXPIRES"] = settings.JWT_ACCESS_TOKEN_EXPIRES
 
 
-# @app.before_request
-# def before_request():
-#     request_id = request.headers.get('X-Request-Id')
-#     if not request_id:
-#         raise RuntimeError('request id is required')
+@app.before_request
+def before_request():
+    request_id = request.headers.get('X-Request-Id')
+    if not request_id:
+        raise RuntimeError('request id is required')
 
 
 def create_app(app):

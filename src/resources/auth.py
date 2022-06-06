@@ -137,15 +137,16 @@ class OauthAuth(Resource):
         if social == const.OAUTH_GOOGLE:
             user_info = token.get("userinfo")
         else:
-            resp = client.get(
-                'https://graph.facebook.com/me?fields=id,name,email,picture{url}')
-            profile = resp.json()
-
-        if not user_info:
-            user_info = client.userinfo()
+            user_info_yandex = client.userinfo()
+            user_info = {
+                "sub": user_info_yandex["client_id"],
+                "email": user_info_yandex["default_email"],
+                "name": user_info_yandex["real_name"]
+            }
 
         email = user_info["email"]
         name = user_info["name"]
+
 
         user = UserModel.find_by_email(email=email)
         if not user:
