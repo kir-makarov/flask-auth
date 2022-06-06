@@ -32,6 +32,14 @@ class PostgresSettings(Base):
         env_prefix = 'postgres_'
 
 
+
+class JaegerSettings(Base):
+    host: str = os.getenv('JAEGER_HOST', 'localhost')
+    port: int = os.getenv('JAEGER_PORT', 6831)
+
+    class Config:
+        env_prefix = 'jaeger_'
+
 class Settings(Base):
     ACCESS_EXPIRES = timedelta(hours=1)
     REFRESH_EXPIRES = timedelta(days=10)
@@ -49,7 +57,9 @@ class Settings(Base):
     OAUTH_YANDEX_CLIENT_SECRET: str = os.getenv('OAUTH_YANDEX_CLIENT_SECRET', "")
 
     postgres: PostgresSettings = PostgresSettings()
+    jaeger: JaegerSettings = JaegerSettings()
     redis: RedisSettings = RedisSettings()
+
 
 
 settings = Settings()

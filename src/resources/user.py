@@ -8,7 +8,7 @@ from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from models.user import UserModel, AuthHistoryModel
 from core import const
-from services.permissions import user_must_match, check_access_level
+from services.permissions import user_must_match, check_access_level, limiter
 
 
 class ResponseModel(BaseModel):
@@ -24,6 +24,7 @@ class UserList(Resource):
 
 
 class User(Resource):
+    decorators = [limiter.limit("1/second", error_message="quota limit exceeded")]
 
     @classmethod
     @user_must_match
@@ -60,6 +61,8 @@ class UserRequestModel(BaseModel):
 
 
 class UserRegister(Resource):
+    decorators = [limiter.limit("1/second", error_message="quota limit exceeded")]
+
     @validate()
     def post(self, body: UserRequestModel):
         """
@@ -94,6 +97,7 @@ class ChangePasswordRequest(BaseModel):
 
 
 class ChangePassword(Resource):
+    decorators = [limiter.limit("1/second", error_message="quota limit exceeded")]
 
     @validate()
     @user_must_match
@@ -126,6 +130,8 @@ class ChangePassword(Resource):
 
 
 class AuthHistory(Resource):
+    decorators = [limiter.limit("1/second", error_message="quota limit exceeded")]
+
     @jwt_required()
     @user_must_match
     def get(self, user_id):
@@ -163,11 +169,11 @@ class AuthHistory(Resource):
         user_data = AuthHistoryModel.query.filter_by(
             user_id=user_id).paginate(page=page, per_page=per_page)
         history = [{
-                'date': usr.date,
-                'ip_address': usr.ip_address,
-                'user_agent': usr.user_agent,
-                'browser': usr.browser,
-                'platform': usr.platform,
-                } for usr in user_data.items
+            'date': usr.date,
+            'ip_address': usr.ip_address,
+            'user_agent': usr.user_agent,
+            'browser': usr.browser,
+            'platform': usr.platform,
+        } for usr in user_data.items
         ]
         return jsonify(history)

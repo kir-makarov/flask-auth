@@ -25,7 +25,6 @@ def before_request():
     if not request_id:
         raise RuntimeError('request id is required')
 
-
 def create_app(app):
     initialize_db(app)
     initialize_jwt(app)
