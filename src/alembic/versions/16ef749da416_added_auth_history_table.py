@@ -33,6 +33,7 @@ def upgrade():
     op.create_unique_constraint(None, 'film', ['id'])
     op.create_unique_constraint(None, 'roles', ['id'])
     op.create_unique_constraint(None, 'users', ['id'])
+    op.create_unique_constraint(None, "auth_history", ["id", "platform"])
     # ### end Alembic commands ###
 
 
@@ -41,5 +42,6 @@ def downgrade():
     op.drop_constraint(None, 'users', type_='unique')
     op.drop_constraint(None, 'roles', type_='unique')
     op.drop_constraint(None, 'film', type_='unique')
+    op.drop_constraint(None, "auth_history", type_="unique")
     op.drop_table('auth_history')
     # ### end Alembic commands ###
