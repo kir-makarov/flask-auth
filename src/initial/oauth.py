@@ -19,7 +19,6 @@ def initialize_oath(app: Flask):
     app.config["GOOGLE_CLIENT_ID"] = settings.OAUTH_GOOGLE_CLIENT_ID
     app.config["GOOGLE_CLIENT_SECRET"] = settings.OAUTH_GOOGLE_CLIENT_SECRET
     app.secret_key = settings.OAUTH_GOOGLE_CLIENT_SECRET
-    # app.secret_key = settings.OAUTH_FACEBOOK_CLIENT_SECRET
     app.config["GOOGLE_SERVER_METADATA_URL"] = settings.OAUTH_GOOGLE_SERVER_METADATA_URL
     app.config["YANDEX_CLIENT_ID"] = settings.OAUTH_YANDEX_CLIENT_ID
     app.config["YANDEX_CLIENT_SECRET"] = settings.OAUTH_YANDEX_CLIENT_SECRET

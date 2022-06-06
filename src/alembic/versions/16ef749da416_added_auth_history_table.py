@@ -28,12 +28,14 @@ def upgrade():
     sa.Column('date', sa.DateTime(), nullable=True),
     sa.ForeignKeyConstraint(['user_id'], ['users.id'], ),
     sa.PrimaryKeyConstraint('id'),
-    sa.UniqueConstraint('id')
+    sa.UniqueConstraint('id'),
+    postgresql_partition_by="LIST (platform)",
     )
     op.create_unique_constraint(None, 'film', ['id'])
     op.create_unique_constraint(None, 'roles', ['id'])
     op.create_unique_constraint(None, 'users', ['id'])
     op.create_unique_constraint(None, "auth_history", ["id", "platform"])
+
     # ### end Alembic commands ###
 
 
