@@ -12,12 +12,14 @@ from flask_pydantic import validate
 from pydantic import BaseModel
 from http import HTTPStatus
 from flask_restful import request, Resource
+from user_agents import parse
 
 from core import const
 from core.config import settings
 from models.user import UserModel, AuthHistoryModel
 from db import jwt_redis
 from services.auth import auth_service
+from services.permissions import limiter
 
 from resources.user import UserRequestModel
 
@@ -33,6 +35,8 @@ class ResponseModel(BaseModel):
 
 
 class Login(Resource):
+    decorators = [limiter.limit("1/second", error_message="quota limit exceeded")]
+
     @validate()
     def post(self, body: UserRequestModel):
         """
@@ -96,8 +100,16 @@ class Login(Resource):
             if request:
                 user_agent = request.user_agent.string
                 ip_address = request.remote_addr
-                platform = request.user_agent.platform
-                browser = request.user_agent.browser
+                ua = parse(user_agent)
+                browser = ua.get_browser()
+                if ua.is_pc:
+                    platform = 'pc'
+                elif ua.is_mobile:
+                    platform = 'mobile'
+                elif ua.is_tablet:
+                    platform = 'tablet'
+                else:
+                    platform = 'unknown'
 
                 history = AuthHistoryModel(user_id=user.id,
                                            ip_address=ip_address,
@@ -118,6 +130,8 @@ class Login(Resource):
 
 
 class Logout(Resource):
+    decorators = [limiter.limit("1/second", error_message="quota limit exceeded")]
+
     @jwt_required()
     def post(self):
         """
@@ -158,6 +172,8 @@ class Logout(Resource):
 
 
 class TokenRefresh(Resource):
+    decorators = [limiter.limit("1/second", error_message="quota limit exceeded")]
+
     @jwt_required(refresh=True)
     def post(self):
         """

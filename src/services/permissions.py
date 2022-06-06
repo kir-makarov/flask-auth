@@ -1,9 +1,15 @@
 from http import HTTPStatus
 from functools import wraps
+from flask import Flask
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from core import const
 from models.user import UserModel
+
+_app = Flask(__name__)
+limiter = Limiter(_app, key_func=get_remote_address)
 
 
 def user_must_match(fn):
@@ -14,6 +20,7 @@ def user_must_match(fn):
         if user_id is not None and user_id != current_user_id:
             return {"message": const.MSG_USER_NOT_FOUND_OR_INCORRECT_PASSWORD}, HTTPStatus.NOT_FOUND
         return fn(*args, user_id=user_id, **kwargs)
+
     return decorator
 
 
@@ -43,5 +50,7 @@ def check_access_level(access_level):
             if user_access_level < access_level:
                 return {'message': 'Access closed'}, HTTPStatus.NOT_FOUND
             return fn(*args, **kwargs)
+
         return decorator
+
     return wrapper
