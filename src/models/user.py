@@ -7,22 +7,6 @@ from sqlalchemy import UniqueConstraint
 from db import db
 
 
-def create_partition(target, connection, **kw) -> None:
-    """creating partition by success_history"""
-    connection.execute(
-        """CREATE TABLE IF NOT EXISTS "auth_history_pc" PARTITION OF "auth_history" FOR VALUES IN ('pc')"""
-    )
-    connection.execute(
-        """CREATE TABLE IF NOT EXISTS "auth_history_mobile" PARTITION OF "auth_history" FOR VALUES IN ('mobile')"""
-    )
-    connection.execute(
-        """CREATE TABLE IF NOT EXISTS "auth_history_tablet" PARTITION OF "auth_history" FOR VALUES IN ('tablet')"""
-    )
-    connection.execute(
-        """CREATE TABLE IF NOT EXISTS "auth_history_unknown" PARTITION OF "auth_history" FOR VALUES IN ('unknown')"""
-    )
-
-
 class RoleUserModel(db.Model):
     __tablename__ = 'roles_users'
 
@@ -174,6 +158,22 @@ class SocialAccountModel(db.Model):
     user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("users.id"))
     social_id = db.Column(db.String(255), nullable=False)
     social_name = db.Column(db.String(255))
+
+
+def create_partition(target, connection, **kw) -> None:
+    """creating partition by auth_history """
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "auth_history_pc" PARTITION OF "auth_history" FOR VALUES IN ('pc')"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "auth_history_mobile" PARTITION OF "auth_history" FOR VALUES IN ('mobile')"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "auth_history_tablet" PARTITION OF "auth_history" FOR VALUES IN ('tablet')"""
+    )
+    connection.execute(
+        """CREATE TABLE IF NOT EXISTS "auth_history_unknown" PARTITION OF "auth_history" FOR VALUES IN ('unknown')"""
+    )
 
 
 class AuthHistoryModel(db.Model):
