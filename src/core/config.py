@@ -33,6 +33,14 @@ class PostgresSettings(Base):
         env_prefix = 'postgres_'
 
 
+
+class JaegerSettings(Base):
+    host: str = os.getenv('JAEGER_HOST', 'localhost')
+    port: int = os.getenv('JAEGER_PORT', 6831)
+
+    class Config:
+        env_prefix = 'jaeger_'
+
 class Settings(Base):
 
     ACCESS_EXPIRES = timedelta(hours=1)
@@ -44,7 +52,9 @@ class Settings(Base):
     JWT_ACCESS_TOKEN_EXPIRES: int = os.getenv('JWT_ACCESS_TOKEN_EXPIRES', 3600)
 
     postgres: PostgresSettings = PostgresSettings()
+    jaeger: JaegerSettings = JaegerSettings()
     redis: RedisSettings = RedisSettings()
+
 
 
 settings = Settings()
