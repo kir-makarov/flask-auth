@@ -1,5 +1,7 @@
 import http
-from flask import jsonify
+import uuid
+
+from flask import jsonify, url_for
 from flask_jwt_extended import (
     create_access_token,
     create_refresh_token,
@@ -12,10 +14,12 @@ from flask_pydantic import validate
 from pydantic import BaseModel
 from http import HTTPStatus
 from flask_restful import request, Resource
+from werkzeug import exceptions
 from user_agents import parse
 
 from core import const
 from core.config import settings
+from initial.oauth import oauth
 from models.user import UserModel, AuthHistoryModel
 from db import jwt_redis
 from services.auth import auth_service
@@ -127,6 +131,88 @@ class Login(Resource):
         return ResponseModel(
             message=const.MSG_INVALID_CREDENTIALS
         ), http.HTTPStatus.UNAUTHORIZED
+
+
+class OauthAuth(Resource):
+    def get(self, social: str):
+        """
+            Social network authorization method
+            ---
+        """
+        client = oauth.create_client(social)
+
+        if not client:
+            raise exceptions.NotImplemented()
+
+        token = client.authorize_access_token()
+
+        if social == const.OAUTH_GOOGLE:
+            user_info = token.get("userinfo")
+        else:
+            user_info_yandex = client.userinfo()
+            user_info = {
+                "sub": user_info_yandex["client_id"],
+                "email": user_info_yandex["default_email"],
+                "name": user_info_yandex["real_name"]
+            }
+
+        email = user_info["email"]
+        name = user_info["name"]
+
+
+        user = UserModel.find_by_email(email=email)
+        if not user:
+            user = UserModel(name, UserModel.generate_hash(uuid.uuid4().hex), email)
+            user.save_to_db()
+
+        access_token = create_access_token(
+            identity=user.id,
+            fresh=True,
+            additional_claims={"role": user.roles_names_list}
+        )
+        refresh_token = create_refresh_token(user.id)
+        auth_service.delete_user_refresh_token(user.id, request.user_agent)
+        auth_service.save_refresh_token_in_redis(
+            user.id,
+            request.user_agent,
+            refresh_token
+        )
+
+        if request:
+            user_agent = request.user_agent.string
+            ip_address = request.remote_addr
+            platform = request.user_agent.platform
+            browser = request.user_agent.browser
+
+            history = AuthHistoryModel(user_id=user.id,
+                                       ip_address=ip_address,
+                                       user_agent=user_agent,
+                                       platform=platform,
+                                       browser=browser, )
+
+            history.save_to_db()
+
+        return {"access_token": access_token,
+                "refresh_token": refresh_token,
+                "user_id": str(user.id)
+                }, HTTPStatus.OK
+
+
+class OauthLogin(Resource):
+    def get(self, social: str):
+        """
+            Social network login method
+            ---
+        """
+
+        client = oauth.create_client(social)
+
+        if not client:
+            raise exceptions.NotImplemented()
+
+        redirect_url = url_for("oauthauth", social=social, _external=True)
+
+        return client.authorize_redirect(redirect_url)
 
 
 class Logout(Resource):

@@ -102,15 +102,17 @@ class UserModel(db.Model):
     )
     username = db.Column(db.String(255))
     password = db.Column(db.String())
+    email = db.Column(db.String(255))
     roles = db.relationship(
         'RoleModel',
         secondary='roles_users',
         backref=db.backref('users', lazy='dynamic')
     )
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, email = ""):
         self.username = username
         self.password = password
+        self.email = email
 
     def save_to_db(self):
         db.session.add(self)
@@ -143,6 +145,10 @@ class UserModel(db.Model):
         return cls.query.filter_by(username=username).first()
 
     @classmethod
+    def find_by_email(cls, email: str):
+        return cls.query.filter_by(email=email).first()
+
+    @classmethod
     def update_password(cls, _id, new_password):
         cls.password = new_password
         db.session.commit()
@@ -154,6 +160,20 @@ class UserModel(db.Model):
     @staticmethod
     def verify_hash(password, hash):
         return sha256.verify(password, hash)
+
+
+class SocialAccountModel(db.Model):
+    __tablename__ = 'social_accounts'
+    id = db.Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        unique=True,
+        nullable=False
+    )
+    user_id = db.Column(UUID(as_uuid=True), db.ForeignKey("users.id"))
+    social_id = db.Column(db.String(255), nullable=False)
+    social_name = db.Column(db.String(255))
 
 
 class AuthHistoryModel(db.Model):

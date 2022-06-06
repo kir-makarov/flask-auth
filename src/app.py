@@ -2,12 +2,12 @@ from flask import Flask, request
 from core.config import settings
 from initial.database import initialize_db
 from initial.jwt import initialize_jwt
+from initial.oauth import initialize_oath
 from initial.routes import initialize_routes
 from initial.swagger import initialize_swagger
 
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from core.tracer import configure_tracer
-
 
 configure_tracer()
 app = Flask(__name__)
@@ -30,6 +30,7 @@ def create_app(app):
     initialize_jwt(app)
     initialize_routes(app)
     initialize_swagger(app)
+    initialize_oath(app)
     app.run(host='0.0.0.0', port=5000, debug=True)
 
 
