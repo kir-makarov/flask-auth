@@ -21,7 +21,7 @@ class ResponseModel(BaseModel):
 
 
 @users.get('/')
-@check_access_level(8)
+@check_access_level(const.ACCESS_ADMIN)
 def get_userlist():
     return {'users': [x.json() for x in UserModel.find_all()]}
 
