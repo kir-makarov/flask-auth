@@ -1,15 +1,9 @@
 from http import HTTPStatus
 from functools import wraps
-from flask import Flask
-from flask_limiter import Limiter
-from flask_limiter.util import get_remote_address
 from flask_jwt_extended import get_jwt_identity, jwt_required
 
 from core import const
 from models.user import UserModel
-
-_app = Flask(__name__)
-limiter = Limiter(_app, key_func=get_remote_address)
 
 
 def user_must_match(fn):

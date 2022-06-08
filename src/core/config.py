@@ -1,6 +1,8 @@
 import os
 from datetime import timedelta
 from pydantic import BaseSettings
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 
 class Base(BaseSettings):
@@ -65,3 +67,4 @@ class Settings(Base):
 
 
 settings = Settings()
+limiter = Limiter(key_func=get_remote_address)

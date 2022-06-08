@@ -1,16 +1,20 @@
 from flask import Flask, request
-from core.config import settings
+
+from core.config import settings, limiter
 from initial.database import initialize_db
 from initial.jwt import initialize_jwt
 from initial.oauth import initialize_oath
-from initial.routes import initialize_routes
 from initial.swagger import initialize_swagger
 
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from core.tracer import configure_tracer
+from resources.user import users
+from resources.auth import auth
 
 configure_tracer()
 app = Flask(__name__)
+
+
 FlaskInstrumentor().instrument_app(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = settings.postgres.uri
@@ -25,12 +29,15 @@ def before_request():
     if not request_id:
         raise RuntimeError('request id is required')
 
+
 def create_app(app):
     initialize_db(app)
     initialize_jwt(app)
-    initialize_routes(app)
     initialize_swagger(app)
     initialize_oath(app)
+    app.register_blueprint(users)
+    app.register_blueprint(auth)
+    limiter.init_app(app)
     app.run(host='0.0.0.0', port=5000, debug=True)
 
 
