@@ -327,6 +327,9 @@ def validate():
                 role:
                   type: string
                   description: Response data
+                user_id:
+                   type: string
+                   description: User id
           401:
             description: Authorization error response
             schema:
@@ -351,6 +354,7 @@ def validate():
     user = UserModel.find_by_id(current_user_id)
     if user:
         return {"verified": "true",
-                "role": user.roles_names_list}
+                "role": user.roles_names_list,
+                "user_id": str(current_user_id)}
 
     return {"verified": "false"}
